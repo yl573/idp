@@ -20,7 +20,7 @@ int main ()
 	  return -1;
 	}
 
-	rlink.command(BOTH_MOTORS_GO_SAME, getSpeed(127));
+	rlink.command (BOTH_MOTORS_GO_SAME, getSpeed(127));
 
 	rlink.command (RAMP_TIME, 127);
 
