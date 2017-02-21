@@ -17,11 +17,8 @@ int main ()
 	  return -1;
 	}
 
-	watch.start();
-	for (int i=0; i<1000; ++i){
-		rlink.request (TEST_INSTRUCTION); // send test instruction
-	}
-	int ms = watch.read();
-	cout << ms/1000 << endl;
+	rlink.command (STOP_IF_HIGH, 0b11111111);
+	rlink.command (STOP_IF_LOW, 0b11111111);
+	rlink.command (STOP_SELECT, 4);
 
 }

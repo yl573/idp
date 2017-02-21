@@ -6,8 +6,11 @@ using namespace std;
 #include <robot_delay.h>
 #define ROBOT_NUM 11   // The id number (see below)
 robot_link rlink;
-
 stopwatch watch;
+
+inline int getSpeed(int speed, bool reverse = false) {
+	return reverse? speed + 128 : speed;
+}
 
 int main ()
 {
@@ -17,11 +20,9 @@ int main ()
 	  return -1;
 	}
 
-	watch.start();
-	for (int i=0; i<1000; ++i){
-		rlink.request (TEST_INSTRUCTION); // send test instruction
-	}
-	int ms = watch.read();
-	cout << ms/1000 << endl;
+	rlink.command(BOTH_MOTORS_GO_SAME, getSpeed(127));
+
+	rlink.command (RAMP_TIME, 127);
 
 }
+
