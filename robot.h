@@ -4,15 +4,19 @@ using namespace std;
 #include <robot_link.h>
 #include <stopwatch.h>
 #define ROBOT_NUM 11   // The id number (see below)
-robot_link rlink;
-stopwatch watch;
+
 
 class robot {
 public:
+	robot();
+	~robot();
 	int moveUntilJunction(bool forward);
 	int turn(int direction); 
 
 private:
+
+	robot_link rlink;
+	stopwatch watch;
 
 	class sensorReader {
 	public:
