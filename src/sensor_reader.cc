@@ -8,7 +8,9 @@ class sensorReader {
 public:
 
 	void read() {
-		reading = 0b00000010;
+		#ifndef TEST
+			reading = rlink.request (READ_PORT_0);
+		#endif
 	}
 
 	// get readings from the front sensors

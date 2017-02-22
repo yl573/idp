@@ -7,25 +7,12 @@ using namespace std;
 robot::robot() {
 
 	cout << "creating robot" << endl;
-	// if (!rlink.initialise (ROBOT_NUM)) { // setup the link
-	//   cout << "Cannot initialise link" << endl;
-	//   rlink.print_errs("  ");
-	// }
-}
-
-int getOffset(frontSensorState readings) {
-	if(readings == BWW)
-		return 1;
-	else if(readings == BBW)
-		return 2;
-	else if(readings == WWB)
-		return -1;
-	else if(readings == WBB)
-		return -2;
-	else {
-		throw std::invalid_argument( "front sensor readings wrong, check robot.sensors" );
-		return 0;
+	#ifndef TEST
+	if (!rlink.initialise (ROBOT_NUM)) { // setup the link
+	  cout << "Cannot initialise link" << endl;
+	  rlink.print_errs("  ");
 	}
+	#endif
 }
 
 void robot::moveForwardUntilJunction() {
@@ -59,6 +46,33 @@ void robot::moveForwardUntilJunction() {
 	wheels.brake();
 }
 
+void robot::moveBackUntilJunction() {
+
+	int lineSpeed = -100;
+	int rotationSpeed;
+	frontSensorState readings;
+	do {
+		sensors.read();
+		readings = sensors.getFrontSensorReading(); 
+
+		// path correction
+		if(readings != BWB) {
+
+			// lost!! disaster recovery
+			if(readings == BBB) {
+				throw std::runtime_error( "robot got lost!" );	
+			}
+			// just adjust path
+			else {
+				int offset = getOffset(readings);
+				rotationSpeed = -offset * 20;
+			}
+		} 
+		wheels.setStraightRotation(lineSpeed, rotationSpeed);
+	} while(!sensors.backSensorOnLine());
+	wheels.brake();
+}
+
 void robot::turn(int direction) {
 
 	int rotationSpeed;
@@ -80,40 +94,59 @@ void robot::turn(int direction) {
 
 	wheels.setStraightRotation(0, rotationSpeed);
 
-	//TODO wait half a second
-	// while() {
-	// 	sensors.read();
-	// }
+
+	#ifndef TEST
+	watch.start();
+	while(watch.read() < 500) {
+		sensors.read();
+	}
+	watch.stop();
+	#endif
+
 	frontSensorState currentState;
-	int state = 0;
 	while(true) {
 		sensors.read();
 		currentState = sensors.getFrontSensorReading();
 
-		if(currentState == slowState1 && state < 1) {
+		if(currentState == slowState1) {
 			rotationSpeed = 30;
-			state = 1;
-			wheels.setStraightRotation(0, rotationSpeed);
 		}
-		else if(currentState == slowState2 && state < 2) {
+		else if(currentState == slowState2) {
 			rotationSpeed = 10;
-			state = 2;
-			wheels.setStraightRotation(0, rotationSpeed);
 		}
 		else if(currentState == BWB)
 			break;
 		else
 			throw std::runtime_error( "robot got lost!" );
+
+		wheels.setStraightRotation(0, rotationSpeed);
 	}
 
 	wheels.brake();
 }
+
+
 
 void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
 }
 
+
+int robot::getOffset(frontSensorState readings) {
+	if(readings == BWW)
+		return 1;
+	else if(readings == BBW)
+		return 2;
+	else if(readings == WWB)
+		return -1;
+	else if(readings == WBB)
+		return -2;
+	else {
+		throw std::invalid_argument( "front sensor readings wrong, check robot.sensors" );
+		return 0;
+	}
+}
 
 
 

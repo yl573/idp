@@ -1,15 +1,20 @@
 #ifndef INCLUDED
 #define INCLUDED
+#define TEST
 
 #include <iostream>
 #include <vector>
-// #include <robot_instr.h>
-// #include <robot_link.h>
-// #include <stopwatch.h>
+
+#ifndef TEST
+#include <robot_instr.h>
+#include <robot_link.h>
+#include <stopwatch.h>
+robot_link rlink;
+stopwatch watch;
+#endif
 
 #include "robot.h"
 #include "planner.h"
-#include <iostream>
 
 #define ROBOT_NUM 11   // The id number (see below)
 
@@ -22,7 +27,6 @@
 // #define
 // #define
 
-//stopwatch watch;
 
 using namespace std;
 
