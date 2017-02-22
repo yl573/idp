@@ -4,8 +4,9 @@ using namespace std;
 
 class sensorReader {
 public:
-	int getLineFollowingReading(int readings[]) {
-		return 0;
+	int getLFReading() {
+		int readings[4] = {0,1,0,0};
+		return readings;
 	}
 
 	int getWeightReading(int &weight) {
