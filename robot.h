@@ -1,39 +1,19 @@
-#include <iostream>
+#pragma once
+#include "include.h"
+#include "wheels_driver.cc"
+#include "forklift_driver.cc"
+#include "sensor_reader.cc"
 using namespace std;
-#include <robot_instr.h>
-#include <robot_link.h>
-#include <stopwatch.h>
-#define ROBOT_NUM 11   // The id number (see below)
-
 
 class robot {
 public:
 	robot();
-	~robot();
-	int moveUntilJunction(bool forward);
+	int moveUntilJunction(int direction);
 	int turn(int direction); 
 
 private:
-
-	robot_link rlink;
-	stopwatch watch;
-
-	class sensorReader {
-	public:
-		int getLineFollowingReading(int &s1, int &s2, int &s3, nt &s4);
-		int getWeightReading(int &weight);
-		int getColorReading(int &color);
-	} sensors;
-
-	class forkliftDriver {
-	public:
-		int setHeight(int height);
-	} forklift;
-
-	class wheelsDriver {
-	public:
-		int setSpeeds(int leftSpeed, int rightSpeed);
-		int brake();
-	} wheels;
+	wheelsDriver wheels;
+	forkliftDriver forklift;
+	sensorReader sensors;
 
 };

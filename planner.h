@@ -1,6 +1,5 @@
-#include <stopwatch.h>
-#include <iostream>
-
+#pragma once
+#include "include.h"
 using namespace std;
 
 class planner {
@@ -8,9 +7,10 @@ class planner {
 public:
 
 	planner();
-	start();
+	void start();
 
 
 private:
-	stopwatch watch;
-}
+	
+	robot rbt;
+};
