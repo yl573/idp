@@ -1,5 +1,5 @@
 
-#include "../include/include.h"
+#include "include.h"
 using namespace std;
 
 planner::planner() {
@@ -7,6 +7,11 @@ planner::planner() {
 }
 
 void planner::start() {
-	//rbt.moveUntilJunction(FORWARD);
-	rbt.turn(LEFT);
+	try {
+		rbt.moveForwardUntilJunction();
+		rbt.turn(LEFT);
+	} catch(runtime_error& error) {
+		cout << "ERROR: " << error.what() << endl;
+		rbt.recovery();
+	}
 }
