@@ -135,31 +135,31 @@ void robot::moveForwardUntilJunction() {
 	cout << "move forward until junction" << endl;
 	int lineSpeed;
 	int rotationSpeed;
+	bool approaching = false;
 	frontSensorState readings;
 	// move while back line following sensor hasn't reached line'
 	do {
 		sensors.read();
 		readings = sensors.getFrontSensorReading();
-		// slow down if getting close
-		lineSpeed = (readings == WWW) ? 32 : 64; 
 
-		// path correction
-		if(readings == BWB) {
+		if(readings == WWW) { // slow down if getting close
+			approaching = true;
 			rotationSpeed = 0;
 		}
-		else {
+		if(readings == BWB) { // path correction
+			rotationSpeed = 0;
+		}
+		else if(readings == BBB) { // lost!! disaster recovery		
+			throw runtime_error( "robot got lost!" );
+		}		
+		else { // just adjust path
+			int offset = getOffset(readings);
+			rotationSpeed = offset * 20;
+		}
 
-			// lost!! disaster recovery
-			if(readings == BBB) {
-				throw runtime_error( "robot got lost!" );	
-			}
-			// just adjust path
-			else {
-				int offset = getOffset(readings);
-				rotationSpeed = offset * 20;
-			}
-		} 
+		lineSpeed = approaching ? 32 : 64; 
 		wheels.setStraightRotation(lineSpeed, rotationSpeed);
+
 	} while(!sensors.backSensorOnLine());
 	wheels.brake();
 }
