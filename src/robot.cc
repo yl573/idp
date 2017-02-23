@@ -33,7 +33,7 @@ void robot::moveForwardUntilJunction() {
 
 			// lost!! disaster recovery
 			if(readings == BBB) {
-				throw std::runtime_error( "robot got lost!" );	
+				throw runtime_error( "robot got lost!" );	
 			}
 			// just adjust path
 			else {
@@ -60,7 +60,7 @@ void robot::moveBackUntilJunction() {
 
 			// lost!! disaster recovery
 			if(readings == BBB) {
-				throw std::runtime_error( "robot got lost!" );	
+				throw runtime_error( "robot got lost!" );	
 			}
 			// just adjust path
 			else {
@@ -90,7 +90,7 @@ void robot::turn(int direction) {
 		slowState2 = WWB;
 	}
 	else
-		throw std::invalid_argument( "turning direction can only be left or right" );
+		throw invalid_argument( "turning direction can only be left or right" );
 
 	wheels.setStraightRotation(0, rotationSpeed);
 
@@ -117,7 +117,7 @@ void robot::turn(int direction) {
 		else if(currentState == BWB)
 			break;
 		else
-			throw std::runtime_error( "robot got lost!" );
+			throw runtime_error( "robot got lost!" );
 
 		wheels.setStraightRotation(0, rotationSpeed);
 	}
@@ -143,7 +143,7 @@ int robot::getOffset(frontSensorState readings) {
 	else if(readings == WBB)
 		return -2;
 	else {
-		throw std::invalid_argument( "front sensor readings wrong, check robot.sensors" );
+		throw invalid_argument( "front sensor readings wrong, check robot.sensors" );
 		return 0;
 	}
 }

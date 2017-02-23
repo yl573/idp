@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 #ifndef TEST
 #include <robot_instr.h>
@@ -15,6 +16,7 @@ stopwatch watch;
 
 #include "robot.h"
 #include "planner.h"
+
 
 #define ROBOT_NUM 11   // The id number (see below)
 

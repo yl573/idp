@@ -24,7 +24,7 @@ public:
 		#ifndef TEST
 		rlink.command (RAMP_TIME, 255);
 		rlink.command(MOTOR_1_GO, leftDemand);
-		rlink.command(MOTOR_1_GO, rightDemand);
+		rlink.command(MOTOR_2_GO, rightDemand);
 		#endif
 	}
 

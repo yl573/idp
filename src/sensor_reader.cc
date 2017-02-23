@@ -39,7 +39,7 @@ public:
 				return WWW;
 			break;
 			default:
-				throw std::invalid_argument( "invalid sensor reading" );
+				throw invalid_argument( "invalid sensor reading" );
 		}
 	}
 
