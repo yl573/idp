@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 
 #ifndef TEST
 #include <robot_instr.h>
