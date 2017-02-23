@@ -16,7 +16,7 @@ public:
 
 	// get readings from the front sensors
 	frontSensorState getFrontSensorReading() {
-		bool print = false;
+		bool print = true;
 		int frontReadings = reading & 0b00000111;
 		switch(frontReadings) {
 			case 0b00000010:
@@ -48,6 +48,7 @@ public:
 				return WWW;
 			break;
 			default:
+				cout << frontReadings << endl;
 				throw std::invalid_argument( "invalid sensor reading" );
 		}
 	}
@@ -87,7 +88,7 @@ public:
 
 		cout << "leftDemand" << leftDemand << "  rightDemand" << rightDemand << endl;
 		#ifndef TEST
-		rlink.command (RAMP_TIME, 255);
+		//rlink.command (RAMP_TIME, 255);
 		rlink.command(MOTOR_1_GO, leftDemand);
 		rlink.command(MOTOR_2_GO, rightDemand);
 		#endif
@@ -95,7 +96,7 @@ public:
 
 	void brake() {
 		#ifndef TEST
-		rlink.command (RAMP_TIME, 0);
+		//rlink.command (RAMP_TIME, 0);
 		rlink.command(BOTH_MOTORS_GO_SAME, 0);
 		#endif
 	}
@@ -146,7 +147,7 @@ void robot::moveForwardUntilJunction() {
 			approaching = true;
 			rotationSpeed = 0;
 		}
-		if(readings == BWB) { // path correction
+		else if(readings == BWB) { // on line
 			rotationSpeed = 0;
 		}
 		else if(readings == BBB) { // lost!! disaster recovery		
@@ -166,44 +167,42 @@ void robot::moveForwardUntilJunction() {
 
 void robot::moveBackUntilJunction() {
 
-	int lineSpeed = -100;
+	int lineSpeed = -32;
 	int rotationSpeed;
 	frontSensorState readings;
 	do {
 		sensors.read();
-		readings = sensors.getFrontSensorReading(); 
+		readings = sensors.getFrontSensorReading();
 
-		// path correction
-		if(readings != BWB) {
+		if(readings == BWB) { // on line
+			rotationSpeed = 0;
+		}
+		else if(readings == BBB || readings == WWW) { // lost!! disaster recovery		
+			cout << "readings: " << readings << endl;
+			throw runtime_error( "robot got lost!" );
+		}		
+		else { // just adjust path
+			int offset = getOffset(readings);
+			rotationSpeed = offset * -10;
+		}
 
-			// lost!! disaster recovery
-			if(readings == BBB) {
-				throw runtime_error( "robot got lost!" );	
-			}
-			// just adjust path
-			else {
-				int offset = getOffset(readings);
-				rotationSpeed = -offset * 20;
-			}
-		} 
 		wheels.setStraightRotation(lineSpeed, rotationSpeed);
+
 	} while(!sensors.backSensorOnLine());
 	wheels.brake();
 }
 
 void robot::turn(int direction) {
 
-	int rotationSpeed;
+	int rotationSpeed = 127;
 	frontSensorState slowState1;
 	frontSensorState slowState2;
 
 	if(direction == RIGHT) {
-		rotationSpeed = 127;
 		slowState1 = BBW;
 		slowState2 = BWW;
 	}
 	else if(direction == LEFT) {
-		rotationSpeed = -127;
 		slowState1 = WBB;
 		slowState2 = WWB;
 	}
@@ -212,31 +211,30 @@ void robot::turn(int direction) {
 
 	wheels.setStraightRotation(0, rotationSpeed);
 
-
-	#ifndef TEST
-	watch.start();
-	while(watch.read() < 500) {
-		sensors.read();
-	}
-	watch.stop();
-	#endif
-
 	frontSensorState currentState;
+	watch.start();
 	while(true) {
+		rotationSpeed = 127;
 		sensors.read();
 		currentState = sensors.getFrontSensorReading();
 
 		if(currentState == slowState1) {
-			rotationSpeed = 30;
+			rotationSpeed = 64;
 		}
 		else if(currentState == slowState2) {
-			rotationSpeed = 10;
+			rotationSpeed = 32;
 		}
-		else if(currentState == BWB)
+		else if(currentState == BWB) {
+			cout << "turn complete" << endl;
 			break;
-		else
-			throw runtime_error( "robot got lost!" );
+		}
+		else {
+			if(watch.read() > 100000)
+				throw runtime_error( "robot got lost!" );
+		}
 
+		if(direction == LEFT) 
+			rotationSpeed *= -1;
 		wheels.setStraightRotation(0, rotationSpeed);
 	}
 
