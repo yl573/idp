@@ -20,9 +20,14 @@ int main ()
 	  return -1;
 	}
 
-	rlink.command (BOTH_MOTORS_GO_SAME, getSpeed(127));
+	rlink.command (BOTH_MOTORS_GO_OPPOSITE, getSpeed(127));
+	//rlink.command(MOTOR_1_GO, 127);
+	//rlink.command(MOTOR_2_GO, 255);
+	
 
 	rlink.command (RAMP_TIME, 127);
+	
+	while(true);
 
 }
 

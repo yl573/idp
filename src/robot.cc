@@ -16,27 +16,35 @@ public:
 
 	// get readings from the front sensors
 	frontSensorState getFrontSensorReading() {
+		bool print = false;
 		int frontReadings = reading & 0b00000111;
 		switch(frontReadings) {
 			case 0b00000010:
+				if(print) cout << "BWB" << endl;
 				return BWB;
 			break;
 			case 0b00000110:
+				if(print) cout << "WWB" << endl;
 				return WWB;
 			break;
 			case 0b00000100:
+				if(print) cout << "WBB" << endl;
 				return WBB;
 			break;
 			case 0b00000011:
+				if(print) cout << "BWW" << endl;
 				return BWW;
 			break;
 			case 0b00000001:
+				if(print) cout << "BBW" << endl;
 				return BBW;
 			break;
 			case 0b00000000:
+				if(print) cout << "BBB" << endl;
 				return BBB;
 			break;
 			case 0b00000111:
+				if(print) cout << "WWW" << endl;
 				return WWW;
 			break;
 			default:
@@ -65,23 +73,23 @@ class wheelsDriver {
 public:
 	int lastS, lastR;
 
-
 	// +ve forward and right, -ve back and left
 	void setStraightRotation(int straight, int rotation) {
 		if(lastS == straight && lastR == rotation)
 			return;
+		cout << "straight" << straight << "  rotation" << rotation << endl;
 		int leftDemand = clamp(straight + rotation);
-		int rightDemand = clamp(straight - rotation);
+		int rightDemand = clamp(-straight + rotation);
 		leftDemand = convert(leftDemand);
 		rightDemand = convert(rightDemand);
 		lastS = straight;
 		lastR = rotation;
 
-
+		cout << "leftDemand" << leftDemand << "  rightDemand" << rightDemand << endl;
 		#ifndef TEST
 		rlink.command (RAMP_TIME, 255);
 		rlink.command(MOTOR_1_GO, leftDemand);
-		rlink.command(MOTOR_1_GO, rightDemand);
+		rlink.command(MOTOR_2_GO, rightDemand);
 		#endif
 	}
 
@@ -121,16 +129,10 @@ public:
 robot::robot() {
 
 	cout << "creating robot" << endl;
-	#ifndef TEST
-	if (!rlink.initialise (ROBOT_NUM)) { // setup the link
-	  cout << "Cannot initialise link" << endl;
-	  rlink.print_errs("  ");
-	}
-	#endif
 }
 
 void robot::moveForwardUntilJunction() {
-
+	cout << "move forward until junction" << endl;
 	int lineSpeed;
 	int rotationSpeed;
 	frontSensorState readings;
@@ -139,10 +141,13 @@ void robot::moveForwardUntilJunction() {
 		sensors.read();
 		readings = sensors.getFrontSensorReading();
 		// slow down if getting close
-		lineSpeed = (readings == WWW) ? 64 : 127; 
+		lineSpeed = (readings == WWW) ? 32 : 64; 
 
 		// path correction
-		if(readings != BWB) {
+		if(readings == BWB) {
+			rotationSpeed = 0;
+		}
+		else {
 
 			// lost!! disaster recovery
 			if(readings == BBB) {
@@ -253,6 +258,7 @@ int robot::getOffset(frontSensorState readings) {
 	else if(readings == WBB)
 		return -2;
 	else {
+		cout << readings << endl;
 		throw invalid_argument( "front sensor readings wrong, check robot.sensors" );
 		return 0;
 	}

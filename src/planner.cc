@@ -11,9 +11,10 @@ planner::planner() {
 }
 
 void planner::start() {
+	cout << "mission start" << endl;
 	try {
 		rbt.moveForwardUntilJunction();
-		rbt.turn(LEFT);
+		//rbt.turn(LEFT);
 	} catch(runtime_error& error) {
 		cout << "ERROR: " << error.what() << endl;
 		rbt.recovery();

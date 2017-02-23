@@ -1,6 +1,6 @@
 #ifndef INCLUDED
 #define INCLUDED
-#define TEST
+//#define TEST
 
 #include <iostream>
 #include <vector>
@@ -10,8 +10,8 @@
 #include <robot_instr.h>
 #include <robot_link.h>
 #include <stopwatch.h>
-robot_link rlink;
-stopwatch watch;
+extern robot_link rlink;
+extern stopwatch watch;
 #endif
 
 #define ROBOT_NUM 11   // The id number (see below)
