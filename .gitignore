@@ -6,3 +6,4 @@ project.geany
 .DS_Store
 main.dSYM/
 .vscode/
+*.o

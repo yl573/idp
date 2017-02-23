@@ -131,7 +131,6 @@ robot::robot() {
 
 void robot::moveForwardUntilJunction() {
 
-	bool approaching = false;
 	int lineSpeed;
 	int rotationSpeed;
 	frontSensorState readings;
