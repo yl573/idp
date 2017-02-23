@@ -1,5 +1,7 @@
 
 #include "include.h"
+#include "robot.h"
+#include "planner.h"
 
 using namespace std;
 

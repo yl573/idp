@@ -1,9 +1,123 @@
 
 #include "include.h"
+#include "robot.h"
 
 using namespace std;
 
 // calibrate sensors
+class sensorReader {
+public:
+
+	void read() {
+		#ifndef TEST
+			reading = rlink.request (READ_PORT_0);
+		#endif
+	}
+
+	// get readings from the front sensors
+	frontSensorState getFrontSensorReading() {
+		int frontReadings = reading & 0b00000111;
+		switch(frontReadings) {
+			case 0b00000010:
+				return BWB;
+			break;
+			case 0b00000110:
+				return WWB;
+			break;
+			case 0b00000100:
+				return WBB;
+			break;
+			case 0b00000011:
+				return BWW;
+			break;
+			case 0b00000001:
+				return BBW;
+			break;
+			case 0b00000000:
+				return BBB;
+			break;
+			case 0b00000111:
+				return WWW;
+			break;
+			default:
+				throw std::invalid_argument( "invalid sensor reading" );
+		}
+	}
+
+	// get reading from back sensor
+	bool backSensorOnLine() {
+		return reading & 00001000;
+	}
+
+	int getWeightReading(int &weight) {
+		return 0;
+	}
+
+	int getColorReading(int &color) {
+		return 0;
+	}
+
+private:
+	int reading;
+} sensors;
+
+class wheelsDriver {
+public:
+	int lastS, lastR;
+
+
+	// +ve forward and right, -ve back and left
+	void setStraightRotation(int straight, int rotation) {
+		if(lastS == straight && lastR == rotation)
+			return;
+		int leftDemand = clamp(straight + rotation);
+		int rightDemand = clamp(straight - rotation);
+		leftDemand = convert(leftDemand);
+		rightDemand = convert(rightDemand);
+		lastS = straight;
+		lastR = rotation;
+
+
+		#ifndef TEST
+		rlink.command (RAMP_TIME, 255);
+		rlink.command(MOTOR_1_GO, leftDemand);
+		rlink.command(MOTOR_1_GO, rightDemand);
+		#endif
+	}
+
+	void brake() {
+		#ifndef TEST
+		rlink.command (RAMP_TIME, 0);
+		rlink.command(BOTH_MOTORS_GO_SAME, 0);
+		#endif
+	}
+
+private:
+	int clamp(int num) {
+		if(num > 127) {
+			return 127;
+		}
+		else if(num < -127) {
+			return -127;
+		}
+		return num;
+	}
+
+	int convert(int num) {
+		if(num < 0) {
+			num = 127 - num;
+		}
+		return num;
+	}
+} wheels;
+
+class forkliftDriver {
+public:
+	int setHeight(int height);
+} forklift;
+
+
+
 robot::robot() {
 
 	cout << "creating robot" << endl;
@@ -125,13 +239,10 @@ void robot::turn(int direction) {
 	wheels.brake();
 }
 
-
-
 void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
 }
-
 
 int robot::getOffset(frontSensorState readings) {
 	if(readings == BWW)
@@ -147,52 +258,6 @@ int robot::getOffset(frontSensorState readings) {
 		return 0;
 	}
 }
-
-
-
-
-
-	// int rotation;
-	// vector<frontSensorState> turningState; // states we are expecting to see
-	// if(direction == RIGHT) {
-	// 	rotation = 127;
-	// 	vector<frontSensorState> temp = {BWB, WWB, WBB, BBB, BBW, BWW, BWB};
-	// 	turningState = temp;
-	// }
-	// else if(direction == LEFT) {
-	// 	rotation = -127;
-	// 	vector<frontSensorState> temp = {BWB, BWW, BBW, BBB, WBB, WWB, BWB};
-	// 	turningState = temp;
-	// }
-	// else
-	// 	throw std::invalid_argument( "turning direction can only be left or right" );
-
-	// int index = 0;
-	// do {
-	// 	sensors.read();
-	// 	frontSensorState currentState = sensors.getFrontSensorReading();
-
-	// 	// state changed
-	// 	if(currentState != turningState[index]) {
-
-	// 		// find new state
-	// 		int i;
-	// 		for(i = index; i < turningState.size(); i++) {
-	// 			if(currentState == turningState[i]) {
-	// 				break;
-	// 			}			 
-	// 		}
-
-	// 		// if it is not what we expect, then robot is lost
-	// 		if(i == turningState.size())
-	// 			throw std::runtime_error( "robot got lost!" );
-	// 		else {
-	// 			cout << "turningState[" << i << "] reached" << endl;
-	// 			index = i;
-	// 		}
-	// 	}
-	// 	wheels.setStraightRotation(0, rotation);
-	// } while(index < turningState.size() - 1);
 
 
 

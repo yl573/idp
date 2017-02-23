@@ -1,9 +1,8 @@
 #include "include.h"
-#include "wheels_driver.cc"
-#include "forklift_driver.cc"
-#include "sensor_reader.cc"
 
 using namespace std;
+
+enum frontSensorState {BWB, WWB, WBB, BWW, BBW, BBB, WWW};
 
 class robot {
 public:
@@ -12,11 +11,6 @@ public:
 	void moveBackUntilJunction();
 	void turn(int direction); 
 	void recovery();
-
 private:
-	wheelsDriver wheels;
-	forkliftDriver forklift;
-	sensorReader sensors;
-
 	int getOffset(frontSensorState readings);
 };

@@ -13,9 +13,6 @@ robot_link rlink;
 stopwatch watch;
 #endif
 
-#include "robot.h"
-#include "planner.h"
-
 #define ROBOT_NUM 11   // The id number (see below)
 
 #define FORWARD 1
