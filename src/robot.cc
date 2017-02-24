@@ -122,7 +122,57 @@ private:
 
 class forkliftDriver {
 public:
-	int setHeight(int height);
+	map<int,string> portMap{ {0,”READ_PORT_0”}, {1,”READ_PORT_1”} , {2,”READ_PORT_2”} , {3,”READ_PORT_3”}, {4,”READ_PORT_4”}, {5,”READ_PORT_5”}}; //can I use string?
+	//enum PortRead{READ_PORT_0, READ_PORT_1, READ_PORT_2, READ_PORT_3, READ_PORT_4, READ_PORT_5}
+	int lastHeight;//reference (shouldn't it be global?)
+	int currentHeight; //could read all the sensors to know what's the current height but it's wasteful
+	bool aligned = 0;
+
+	forkliftDriver(int h){ lastHeight = h;}
+
+	bool read(int n) { //copied from sensor reader, assume sensor outputs bool
+		#ifndef TEST
+		string port = portMap.at(n)
+		reading = rlink.request (port); //get the port numbers
+		return reading;
+		#endif
+	}
+	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
+	int setHeight(int height){
+		if (height == lastHeight){
+			if (read(height) != true){
+				while (true){
+					rlink.command(MOTOR_3_GO, 127);
+					if(read(0) == 1){lastHeight = 0; break;}
+					if(read(1) == 1){lastHeight = 1; break;}
+					if(read(2) == 1){lastHeight = 2; break;}
+					if(read(3) == 1){lastHeight = 3; break;}
+					if(read(4) == 1){lastHeight = 4; break;}
+					if(read(5) == 1){lastHeight = 5; break;}
+			}
+		}
+		if (height > lastHeight){
+			#ifndef TEST
+			while (aligned == false){
+				rlink.command(MOTOR_3_GO, 127);
+				aligned = read(height);
+			}
+			#endif
+		}
+		if (height < lastHeight){
+			#ifndef TEST
+			while (aligned == false){
+				rlink.command(MOTOR_3_GO, 255);
+				aligned = read(height);
+				#endif
+			}
+		}
+		#ifndef TEST
+		rlink.command (RAMP_TIME, 0);//quick stopping, have to stop while the sensor still reads 1
+		rlink.command(MOTOR_3_GO, 0);
+		#endif
+		return height;
+	}
 } forklift;
 
 

@@ -1,6 +1,6 @@
 #ifndef INCLUDED
 #define INCLUDED
-//#define TEST
+#define TEST
 
 #include <iostream>
 #include <vector>
