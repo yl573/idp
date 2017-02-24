@@ -6,9 +6,10 @@ using namespace std;
 
 robot rbt;
 
+/*
 class action {
 
-}
+}*/
 
 planner::planner() {
 	cout << "creating planner" << endl;
