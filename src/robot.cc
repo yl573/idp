@@ -8,10 +8,18 @@ using namespace std;
 class sensorReader {
 public:
 
+	frontSensorState cachedState;
+
 	void read() {
 		#ifndef TEST
 			reading = rlink.request (READ_PORT_0);
+		#else
+			reading = 0b01000000;
 		#endif
+
+		frontSensorState parsedState= getFrontSensorReading();
+		if(parsedState != BBB) 
+			cachedState = parsedState;
 	}
 
 	// get readings from the front sensors
@@ -142,15 +150,18 @@ void robot::moveForwardUntilJunction() {
 		sensors.read();
 		readings = sensors.getFrontSensorReading();
 
+		rotationSpeed = 0;
+
 		if(readings == WWW) { // slow down if getting close
 			approaching = true;
 			rotationSpeed = 0;
 		}
 		if(readings == BWB) { // path correction
-			rotationSpeed = 0;
+			
 		}
 		else if(readings == BBB) { // lost!! disaster recovery		
-			throw runtime_error( "robot got lost!" );
+			//throw runtime_error( "robot got lost!" );
+			recovery();
 		}		
 		else { // just adjust path
 			int offset = getOffset(readings);
@@ -178,7 +189,8 @@ void robot::moveBackUntilJunction() {
 
 			// lost!! disaster recovery
 			if(readings == BBB) {
-				throw runtime_error( "robot got lost!" );	
+				//throw runtime_error( "robot got lost!" );
+				recovery();	
 			}
 			// just adjust path
 			else {
@@ -235,7 +247,8 @@ void robot::turn(int direction) {
 		else if(currentState == BWB)
 			break;
 		else
-			throw runtime_error( "robot got lost!" );
+			//throw runtime_error( "robot got lost!" );
+			recovery()
 
 		wheels.setStraightRotation(0, rotationSpeed);
 	}
@@ -246,6 +259,12 @@ void robot::turn(int direction) {
 void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
+	if(sensors.cachedState == BWW || sensors.cachedState == BBW) {
+
+	}
+	else if (sensors.cachedState == WWB || sensors.cachedState == WBB) {
+
+	}
 }
 
 int robot::getOffset(frontSensorState readings) {
