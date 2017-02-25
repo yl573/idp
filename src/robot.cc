@@ -11,12 +11,7 @@ public:
 	frontSensorState cachedState;
 
 	void read() {
-		#ifndef TEST
-			reading = rlink.request (READ_PORT_0);
-		#else
-			reading = 0b01000000;
-		#endif
-
+		reading = rlink.request (READ_PORT_0);
 		frontSensorState parsedState= getFrontSensorReading();
 		if(parsedState != BBB) 
 			cachedState = parsedState;
@@ -95,18 +90,12 @@ public:
 		lastR = rotation;
 
 		cout << "leftDemand" << leftDemand << "  rightDemand" << rightDemand << endl;
-		#ifndef TEST
-		//rlink.command (RAMP_TIME, 255);
 		rlink.command(MOTOR_1_GO, leftDemand);
 		rlink.command(MOTOR_2_GO, rightDemand);
-		#endif
 	}
 
 	void brake() {
-		#ifndef TEST
-		//rlink.command (RAMP_TIME, 0);
 		rlink.command(BOTH_MOTORS_GO_SAME, 0);
-		#endif
 	}
 
 private:
@@ -157,13 +146,8 @@ void robot::moveForwardUntilJunction() {
 			approaching = true;
 			rotationSpeed = 0;
 		}
-<<<<<<< HEAD
-		if(readings == BWB) { // path correction
-			
-=======
 		else if(readings == BWB) { // on line
 			rotationSpeed = 0;
->>>>>>> 3e5032e7b785ef886508cc2474fde9dbc9d2bc8b
 		}
 		else if(readings == BBB) { // lost!! disaster recovery		
 			//throw runtime_error( "robot got lost!" );
@@ -188,7 +172,6 @@ void robot::moveBackUntilJunction() {
 	frontSensorState readings;
 	do {
 		sensors.read();
-<<<<<<< HEAD
 		readings = sensors.getFrontSensorReading(); 
 
 		// path correction
@@ -205,22 +188,6 @@ void robot::moveBackUntilJunction() {
 				rotationSpeed = -offset * 20;
 			}
 		} 
-=======
-		readings = sensors.getFrontSensorReading();
-
-		if(readings == BWB) { // on line
-			rotationSpeed = 0;
-		}
-		else if(readings == BBB || readings == WWW) { // lost!! disaster recovery		
-			cout << "readings: " << readings << endl;
-			throw runtime_error( "robot got lost!" );
-		}		
-		else { // just adjust path
-			int offset = getOffset(readings);
-			rotationSpeed = offset * -10;
-		}
-
->>>>>>> 3e5032e7b785ef886508cc2474fde9dbc9d2bc8b
 		wheels.setStraightRotation(lineSpeed, rotationSpeed);
 
 	} while(!sensors.backSensorOnLine());
@@ -280,11 +247,34 @@ void robot::turn(int direction) {
 void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
+	int rotationSpeed = 64; // if cachedState is not reliable, take a leap of faith
 	if(sensors.cachedState == BWW || sensors.cachedState == BBW) {
-
+		rotationSpeed = 64;
 	}
 	else if (sensors.cachedState == WWB || sensors.cachedState == WBB) {
+		rotationSpeed = -64;
+	}
+	frontSensorState reading;
 
+	// S-shaped search
+	watch.start();
+	wheels.setStraightRotation(0, rotationSpeed) 
+	waitTimeoutOrReachedLine(1000);
+	wheels.brake();
+	wheels.setStraightRotation(0, rotationSpeed)
+	waitTimeoutOrReachedLine(2000);
+
+	// after it finds a line
+	moveForwardUntilJunction();
+}
+
+void robot::waitTimeoutOrReachedLine(int timeout) {
+	watch.start();
+	while(watch.read() < timeout) { 
+		sensors.read()
+		reading = sensors.getFrontSensorReading();
+		if(reading != BBB)
+			break;
 	}
 }
 
