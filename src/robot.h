@@ -14,4 +14,5 @@ public:
 private:
 	int getOffset(frontSensorState readings);
 	void waitTimeoutOrReachedLine(int timeout);
+	int getRotationDemand();
 };

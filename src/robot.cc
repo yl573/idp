@@ -131,67 +131,50 @@ robot::robot() {
 
 void robot::moveForwardUntilJunction() {
 	cout << "move forward until junction" << endl;
-	int lineSpeed;
-	int rotationSpeed;
-	bool approaching = false;
-	frontSensorState readings;
-	// move while back line following sensor hasn't reached line'
+	int lineSpeed = 127;
+	watch.start(); // might continue from last junction, give some time
 	do {
-		sensors.read();
-		readings = sensors.getFrontSensorReading();
-
-		rotationSpeed = 0;
-
-		if(readings == WWW) { // slow down if getting close
-			approaching = true;
-			rotationSpeed = 0;
-		}
-		else if(readings == BWB) { // on line
-			rotationSpeed = 0;
-		}
-		else if(readings == BBB) { // lost!! disaster recovery		
-			//throw runtime_error( "robot got lost!" );
-			recovery();
-		}		
-		else { // just adjust path
-			int offset = getOffset(readings);
-			rotationSpeed = offset * 20;
-		}
-
-		lineSpeed = approaching ? 32 : 64; 
-		wheels.setStraightRotation(lineSpeed, rotationSpeed);
-
-	} while(!sensors.backSensorOnLine());
+		wheels.setStraightRotation(lineSpeed, getRotationDemand());
+	} while(watch.read() < 1000 && !sensors.backSensorOnLine());
 	wheels.brake();
 }
 
 void robot::moveBackUntilJunction() {
-
-	int lineSpeed = -32;
-	int rotationSpeed;
-	frontSensorState readings;
+	cout << "move back until junction" << endl;
+	int lineSpeed = -127;
 	do {
-		sensors.read();
-		readings = sensors.getFrontSensorReading(); 
-
-		// path correction
-		if(readings != BWB) {
-
-			// lost!! disaster recovery
-			if(readings == BBB) {
-				//throw runtime_error( "robot got lost!" );
-				recovery();	
-			}
-			// just adjust path
-			else {
-				int offset = getOffset(readings);
-				rotationSpeed = -offset * 20;
-			}
-		} 
-		wheels.setStraightRotation(lineSpeed, rotationSpeed);
-
+		wheels.setStraightRotation(lineSpeed, -getRotationDemand());
 	} while(!sensors.backSensorOnLine());
 	wheels.brake();
+}
+
+void robot::moveBackUntilFrontOnLine() {
+	cout << "move back until front on line" << endl;
+	int lineSpeed = -127;
+	do {
+		wheels.setStraightRotation(lineSpeed, -getRotationDemand());
+	} while(!sensors.getFrontSensorReading() != WWW);
+	wheels.brake();
+}
+
+int robot:getRotationDemand() { 
+	sensors.read();
+	readings = sensors.getFrontSensorReading(); 
+	if(readings == BWB) 
+		return 0;
+	else {	
+		// path correction	
+		if(readings == BBB) {
+			// lost!! disaster recovery
+			//throw runtime_error( "robot got lost!" );
+			recovery();	
+		}
+		else {
+			// just adjust path
+			int offset = getOffset(readings);
+			return offset * 20;
+		}
+	}
 }
 
 void robot::turn(int direction) {
@@ -231,7 +214,7 @@ void robot::turn(int direction) {
 			break;
 		}
 		else {
-			if(watch.read() > 100000)
+			if(watch.read() > 10000)
 				//throw runtime_error( "robot got lost!" );
 				recovery()
 		}
@@ -248,6 +231,7 @@ void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
 	int rotationSpeed = 64; // if cachedState is not reliable, take a leap of faith
+	int lineSpeed = 64;
 	if(sensors.cachedState == BWW || sensors.cachedState == BBW) {
 		rotationSpeed = 64;
 	}
@@ -257,25 +241,35 @@ void robot::recovery() {
 	frontSensorState reading;
 
 	// S-shaped search
-	watch.start();
-	wheels.setStraightRotation(0, rotationSpeed) 
-	waitTimeoutOrReachedLine(1000);
-	wheels.brake();
-	wheels.setStraightRotation(0, rotationSpeed)
-	waitTimeoutOrReachedLine(2000);
+	// An error is throw when a line is found
+	try {
+		while(true) {
+			// timeouts should make it turn 90 degrees
+			wheels.setStraightRotation(0, rotationSpeed) 
+			waitTimeoutOrReachedLine(1000);
+			wheels.setStraightRotation(0, -rotationSpeed)
+			waitTimeoutOrReachedLine(2000);
+		}
+	} catch(runtime_error& error) {
+		wheels.brake();
+		cout << error.what() << endl;
+		break;
+	}
 
 	// after it finds a line
 	moveForwardUntilJunction();
 }
 
+// throws exception when a line is found
 void robot::waitTimeoutOrReachedLine(int timeout) {
 	watch.start();
 	while(watch.read() < timeout) { 
 		sensors.read()
 		reading = sensors.getFrontSensorReading();
 		if(reading != BBB)
-			break;
+			throw runtime_error( "line is found!" );
 	}
+	return false;
 }
 
 int robot::getOffset(frontSensorState readings) {
