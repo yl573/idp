@@ -10,6 +10,7 @@ public:
 	void moveForwardUntilJunction();
 	void moveBackUntilJunction();
 	void turn(int direction); 
+	void moveBackUntilFrontOnLine();
 	void recovery();
 private:
 	int getOffset(frontSensorState readings);
