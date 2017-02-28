@@ -7,6 +7,7 @@
 
 #include <robot_instr.h>
 #include <robot_link.h>
+#include <robot_delay.h>
 #include <stopwatch.h>
 extern robot_link rlink;
 extern stopwatch watch;

@@ -9,12 +9,27 @@ class sensorReader {
 public:
 
 	frontSensorState cachedState;
+	bool touching;
 
-	void read() {
+	void readBoard1() {
 		reading = rlink.request (READ_PORT_0);
 		frontSensorState parsedState= getFrontSensorReading();
 		if(parsedState != BBB) 
 			cachedState = parsedState;
+		touching = (bool) reading & 0b10000000;
+	}
+
+	int getForkliftPosition() {
+		reading = rlink.request (READ_PORT_1);
+		int position = -1
+		
+
+		return 0;
+	}
+
+	void requestNewLoad() {
+		rlink.command (WRITE_PORT_1, 0b00000001);
+		delay(1000);
 	}
 
 	// get readings from the front sensors
@@ -59,10 +74,6 @@ public:
 	// get reading from back sensor
 	bool backSensorOnLine() {
 		return reading & 00001000;
-	}
-
-	int getWeightReading(int &weight) {
-		return 0;
 	}
 
 	int getColorReading(int &color) {
@@ -161,7 +172,7 @@ void robot::moveBackUntilFrontOnLine() {
 }
 
 int robot::getRotationDemand() { 
-	sensors.read();
+	sensors.readBoard1();
 	frontSensorState readings = sensors.getFrontSensorReading(); 
 	if(readings == BWB) 
 		return 0;
@@ -198,14 +209,14 @@ void robot::turn(int direction) {
 	wheels.setStraightRotation(0, rotationSpeed);
 	watch.start(); 
 	while(watch.read() < 10000){
-		sensors.read();
+		sensors.readBoard1();
 	}
 
 	frontSensorState currentState;
 	watch.start();
 	while(true) {
 		rotationSpeed = 127;
-		sensors.read();
+		sensors.readBoard1();
 		currentState = sensors.getFrontSensorReading();
 
 		if(currentState == slowState1) {
@@ -265,7 +276,7 @@ void robot::recovery() {
 void robot::waitTimeoutOrReachedLine(int timeout) {
 	watch.start();
 	while(watch.read() < timeout) { 
-		sensors.read();
+		sensors.readBoard1();
 		frontSensorState reading = sensors.getFrontSensorReading();
 		if(reading != BBB)
 			throw runtime_error( "line is found!" );
