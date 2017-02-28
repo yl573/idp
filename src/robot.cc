@@ -157,13 +157,8 @@ void robot::moveForwardUntilJunction() {
 			approaching = true;
 			rotationSpeed = 0;
 		}
-<<<<<<< HEAD
-		if(readings == BWB) { // path correction
-			
-=======
 		else if(readings == BWB) { // on line
 			rotationSpeed = 0;
->>>>>>> 3e5032e7b785ef886508cc2474fde9dbc9d2bc8b
 		}
 		else if(readings == BBB) { // lost!! disaster recovery		
 			//throw runtime_error( "robot got lost!" );
@@ -188,7 +183,6 @@ void robot::moveBackUntilJunction() {
 	frontSensorState readings;
 	do {
 		sensors.read();
-<<<<<<< HEAD
 		readings = sensors.getFrontSensorReading(); 
 
 		// path correction
@@ -205,22 +199,6 @@ void robot::moveBackUntilJunction() {
 				rotationSpeed = -offset * 20;
 			}
 		} 
-=======
-		readings = sensors.getFrontSensorReading();
-
-		if(readings == BWB) { // on line
-			rotationSpeed = 0;
-		}
-		else if(readings == BBB || readings == WWW) { // lost!! disaster recovery		
-			cout << "readings: " << readings << endl;
-			throw runtime_error( "robot got lost!" );
-		}		
-		else { // just adjust path
-			int offset = getOffset(readings);
-			rotationSpeed = offset * -10;
-		}
-
->>>>>>> 3e5032e7b785ef886508cc2474fde9dbc9d2bc8b
 		wheels.setStraightRotation(lineSpeed, rotationSpeed);
 
 	} while(!sensors.backSensorOnLine());
@@ -266,7 +244,7 @@ void robot::turn(int direction) {
 		else {
 			if(watch.read() > 100000)
 				//throw runtime_error( "robot got lost!" );
-				recovery()
+				recovery();
 		}
 
 		if(direction == LEFT) 
