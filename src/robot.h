@@ -13,4 +13,6 @@ public:
 	void recovery();
 private:
 	int getOffset(frontSensorState readings);
+	void waitTimeoutOrReachedLine(int timeout);
+	int getRotationDemand();
 };
