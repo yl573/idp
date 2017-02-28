@@ -196,6 +196,10 @@ void robot::turn(int direction) {
 		throw invalid_argument( "turning direction can only be left or right" );
 
 	wheels.setStraightRotation(0, rotationSpeed);
+	watch.start(); 
+	while(watch.read() < 10000){
+		sensors.read();
+	}
 
 	frontSensorState currentState;
 	watch.start();
@@ -232,32 +236,29 @@ void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
 	int rotationSpeed = 64; // if cachedState is not reliable, take a leap of faith
-	//int lineSpeed = 64;
 	if(sensors.cachedState == BWW || sensors.cachedState == BBW) {
 		rotationSpeed = 64;
 	}
 	else if (sensors.cachedState == WWB || sensors.cachedState == WBB) {
 		rotationSpeed = -64;
 	}
-	//frontSensorState reading;
 
 	// S-shaped search
 	// An error is throw when a line is found
 	try {
+		int time = 1000;
 		while(true) {
 			// timeouts should make it turn 90 degrees
 			wheels.setStraightRotation(0, rotationSpeed);
-			waitTimeoutOrReachedLine(1000);
+			waitTimeoutOrReachedLine(time);
 			wheels.setStraightRotation(0, -rotationSpeed);
-			waitTimeoutOrReachedLine(2000);
+			waitTimeoutOrReachedLine(time);
+			time += 500;
 		}
 	} catch(runtime_error& error) {
 		wheels.brake();
 		cout << error.what() << endl;
 	}
-
-	// after it finds a line
-	moveForwardUntilJunction();
 }
 
 // throws exception when a line is found
