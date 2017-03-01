@@ -26,6 +26,10 @@ public:
 
 		return 0;
 	}
+	
+	void showType() {
+	
+	}
 
 	void requestNewLoad() {
 		rlink.command (WRITE_PORT_1, 0b00000001);
