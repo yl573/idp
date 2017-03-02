@@ -11,18 +11,21 @@ public:
 	frontSensorState cachedState;
 	bool touching;
 
+	// stores reading in board1Reading, bits 0-3 converts to cached state
 	void readBoard1() {
 		board1Reading = rlink.request (READ_PORT_0);
-		frontSensorState parsedState= getFrontSensorReading();
+		frontSensorState parsedState = getFrontSensorReading();
 		if(parsedState != BBB) 
 			cachedState = parsedState;
 	}
 
+	// stores reading in board2Reading, bit 1 converts to touching
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
 		touching = (bool) board2Reading & 0b00000010;
 	}
 
+	// gets bits 2-7 from board2Reading
 	int getForkliftReadings() {	
 		int forkliftReading = board2Reading & 0b00111111;
 
@@ -42,6 +45,7 @@ public:
 			return -1;
 	}
 	
+	// automatically turn on pallet type LEDs
 	color checkType() {
 		int intensity = rlink.request (ADC0)
 		if(intensity < 50 ) {
@@ -62,11 +66,15 @@ public:
 		}
 	}
 
-	void changeNewLoadLed(bool on) {
-		if(on)
-			rlink.command (WRITE_PORT_1, 0b00000001);
-		else
-			rlink.command (WRITE_PORT_1, 0b00000000);
+	// flashes for 10 seconds, uses bit 0 from board 2
+	void flashNewLoadLed() {
+		rlink.command (WRITE_PORT_1, 0b00000001);
+		delay (2000);
+		rlink.command (WRITE_PORT_1, 0b00000000);
+		delay (8000);
+		rlink.command (WRITE_PORT_1, 0b00000001);
+		delay (2000);
+		rlink.command (WRITE_PORT_1, 0b00000000);			
 	}
 
 	// get readings from the front sensors
@@ -111,10 +119,6 @@ public:
 	// get reading from back sensor
 	bool backSensorOnLine() {
 		return board1Reading & 00001000;
-	}
-
-	int getColorReading(int &color) {
-		return 0;
 	}
 
 private:
