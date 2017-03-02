@@ -168,58 +168,54 @@ private:
 
 class forkliftDriver {
 public:
-	map<int,string> portMap{ {0,”READ_PORT_0”}, {1,”READ_PORT_1”} , {2,”READ_PORT_2”} , {3,”READ_PORT_3”}, {4,”READ_PORT_4”}, {5,”READ_PORT_5”}}; //can I use string?
-	//enum PortRead{READ_PORT_0, READ_PORT_1, READ_PORT_2, READ_PORT_3, READ_PORT_4, READ_PORT_5}
-	int lastHeight;//reference (shouldn't it be global?)
+	int lastHeight;//reference
 	int currentHeight; //could read all the sensors to know what's the current height but it's wasteful
-	bool aligned = 0;
-
+	bool aligned = false;
+	int mReading;
 	forkliftDriver(int h){ lastHeight = h;}
 
-	bool read(int n) { //copied from sensor reader, assume sensor outputs bool
-		#ifndef TEST
-		string port = portMap.at(n)
-		reading = rlink.request (port); //get the port numbers
-		return reading;
-		#endif
-	}
 	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
-	int setHeight(int height){
+	void setHeight(int height){
+		readBoard2();
+		mReading = getForkliftReadings();
 		if (height == lastHeight){
-			if (read(height) != true){
+			if(mReading != height){
 				while (true){
 					rlink.command(MOTOR_3_GO, 127);
-					if(read(0) == 1){lastHeight = 0; break;}
-					if(read(1) == 1){lastHeight = 1; break;}
-					if(read(2) == 1){lastHeight = 2; break;}
-					if(read(3) == 1){lastHeight = 3; break;}
-					if(read(4) == 1){lastHeight = 4; break;}
-					if(read(5) == 1){lastHeight = 5; break;}
+					readBoard2();
+					mReading = getForkliftReadings();
+					if(mReading == 0){lastHeight = 0; break;}
+					if(mReading == 1){lastHeight = 1; break;}
+					if(mReading == 2){lastHeight = 2; break;}
+					if(mReading == 3){lastHeight = 3; break;}
+					if(mReading == 4){lastHeight = 4; break;}
+					if(mReading == 5){lastHeight = 5; break;}
+				}
 			}
 		}
 		if (height > lastHeight){
 			#ifndef TEST
-			while (aligned == false){
+			do{
+				readBoard2();
 				rlink.command(MOTOR_3_GO, 127);
-				aligned = read(height);
-			}
+			}while (getForkliftReadings() != height);
 			#endif
 		}
 		if (height < lastHeight){
 			#ifndef TEST
-			while (aligned == false){
+			do{
+				readBoard2();
 				rlink.command(MOTOR_3_GO, 255);
-				aligned = read(height);
-				#endif
-			}
+			}while (getForkliftReadings() != height);
+			#endif
 		}
 		#ifndef TEST
 		rlink.command (RAMP_TIME, 0);//quick stopping, have to stop while the sensor still reads 1
 		rlink.command(MOTOR_3_GO, 0);
 		#endif
-		return height;
+		lastHeight = height;
 	}
-} forklift;
+} forklift(startingPosition); //startingPosition is global; indicates the starting position of the forklift
 
 
 
