@@ -3,6 +3,7 @@
 using namespace std;
 
 enum frontSensorState {BWB, WWB, WBB, BWW, BBW, BBB, WWW};
+enum color {red, green, black, whites};
 
 class robot {
 public:

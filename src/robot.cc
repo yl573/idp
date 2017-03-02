@@ -12,34 +12,67 @@ public:
 	bool touching;
 
 	void readBoard1() {
-		reading = rlink.request (READ_PORT_0);
+		board1Reading = rlink.request (READ_PORT_0);
 		frontSensorState parsedState= getFrontSensorReading();
 		if(parsedState != BBB) 
 			cachedState = parsedState;
-		touching = (bool) reading & 0b10000000;
 	}
 
-	int getForkliftPosition() {
-		reading = rlink.request (READ_PORT_1);
-		int position = -1
-		
+	void readBoard2() {
+		board2Reading = rlink.request (READ_PORT_1);
+		touching = (bool) board2Reading & 0b00000010;
+	}
 
-		return 0;
+	int getForkliftReadings() {	
+		int forkliftReading = board2Reading & 0b00111111;
+
+		// if one and only one bit is 1
+		if (forkliftReading && !(forkliftReading & (forkliftReading-1)))
+		{
+			int mask = 0b00000001;
+			int position;
+			for(position = 0; position < 5; position++) {
+				if(mask & forkliftReading) // that bit is 1
+					return position;
+				// if not shift the mask
+				mask <<= 1;
+			}
+		}
+		else
+			return -1;
 	}
 	
-	void showType() {
-	
+	color checkType() {
+		int intensity = rlink.request (ADC0)
+		if(intensity < 50 ) {
+			rlink.command (WRITE_PORT_0, 0b00010000);
+			return white;
+		}
+		if(intensity > 50 && intensity < 100) {
+			rlink.command (WRITE_PORT_0, 0b00100000);
+			return green;
+		}
+		if(intensity > 50 && intensity < 150) {
+			rlink.command (WRITE_PORT_0, 0b01000000);
+			return red;
+		}
+		else {
+			rlink.command (WRITE_PORT_0, 0b10000000);
+			return black;
+		}
 	}
 
-	void requestNewLoad() {
-		rlink.command (WRITE_PORT_1, 0b00000001);
-		delay(1000);
+	void changeNewLoadLed(bool on) {
+		if(on)
+			rlink.command (WRITE_PORT_1, 0b00000001);
+		else
+			rlink.command (WRITE_PORT_1, 0b00000000);
 	}
 
 	// get readings from the front sensors
 	frontSensorState getFrontSensorReading() {
 		bool print = true;
-		int frontReadings = reading & 0b00000111;
+		int frontReadings = board1Reading & 0b00000111;
 		switch(frontReadings) {
 			case 0b00000010:
 				if(print) cout << "BWB" << endl;
@@ -77,7 +110,7 @@ public:
 
 	// get reading from back sensor
 	bool backSensorOnLine() {
-		return reading & 00001000;
+		return board1Reading & 00001000;
 	}
 
 	int getColorReading(int &color) {
@@ -85,7 +118,8 @@ public:
 	}
 
 private:
-	int reading;
+	int board1Reading;
+	int board2Reading;
 } sensors;
 
 class wheelsDriver {
