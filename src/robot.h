@@ -1,9 +1,9 @@
 #include "include.h"
-
+#define STARTING_POSITION 0
 using namespace std;
 
 enum frontSensorState {BWB, WWB, WBB, BWW, BBW, BBB, WWW};
-enum color {red, green, black, whites};
+enum color {red, green, black, white};
 
 class robot {
 public:

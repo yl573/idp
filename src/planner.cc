@@ -42,7 +42,7 @@ void dropInHole(location loadLocation) {
 	rbt.moveForwardUntilJunction();	
 }
 
-void goUpRamp() {
+void goUpRamp(location loadLocation) {
 	if(loadLocation != pickUp2 || loadLocation != dropOffLow)
 		throw invalid_argument( "invalid start location to go up the ramp" );
 	rbt.turn(LEFT);
@@ -63,8 +63,3 @@ void goUpRamp() {
 }
 
 
-
-queue<action> planner::getPath(location start, location dest) {
-	queue<action> motionPlan;
-
-}

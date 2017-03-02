@@ -47,7 +47,7 @@ public:
 	
 	// automatically turn on pallet type LEDs
 	color checkType() {
-		int intensity = rlink.request (ADC0)
+		int intensity = rlink.request (ADC0);
 		if(intensity < 50 ) {
 			rlink.command (WRITE_PORT_0, 0b00010000);
 			return white;
@@ -219,7 +219,7 @@ public:
 		#endif
 		lastHeight = height;
 	}
-} forklift(startingPosition); //startingPosition is global; indicates the starting position of the forklift
+} forklift(STARTING_POSITION); //startingPosition is global; indicates the starting position of the forklift
 
 
 
