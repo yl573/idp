@@ -265,10 +265,8 @@ void robot::test() {
 void robot::moveBackUntilFrontOnLine() {
 	cout << "move back until front on line" << endl;
 	int lineSpeed = -127;
-	do {
-		wheels.setStraightRotation(lineSpeed, -getRotationDemand());
-	} while(!sensors.getFrontSensorReading() != WWW);
-
+	wheels.setStraightRotation(lineSpeed, 0);
+	delay(500);
 	wheels.brake();
 }
 

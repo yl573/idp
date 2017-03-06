@@ -12,9 +12,10 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		rbt.moveBackUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.moveForwardUntilJunction();
+		rbt.moveBackUntilFrontOnLine();
+		//rbt.moveBackUntilJunction();
+		//rbt.turn(RIGHT);
+		//rbt.moveForwardUntilJunction();
 		/*rbt.moveForwardUntilJunction();
 		rbt.moveForwardUntilJunction();
 		rbt.turn(RIGHT);
@@ -64,21 +65,16 @@ void planner::getToHole(location loadLocation) {
 void planner::goUpRamp(location loadLocation) {
 	if(loadLocation != pickUp2 || loadLocation != dropOffLow)
 		throw invalid_argument( "invalid start location to go up the ramp" );
-	rbt.turn(LEFT);
-	rbt.turn(LEFT);
+	rbt.turn(RIGHT);
+	rbt.turn(RIGHT);
 	rbt.moveForwardUntilJunction();
 	if(loadLocation == dropOffLow) 
 		rbt.turn(RIGHT);
-	rbt.moveForwardUntilJunction();
-	rbt.moveForwardUntilJunction();
+	moveForwardMultipleTimes(2);
 	rbt.turn(RIGHT);
-	rbt.moveForwardUntilJunction();
-	rbt.moveForwardUntilJunction();
+	moveForwardMultipleTimes(2);
 	rbt.turn(RIGHT);
-	rbt.moveForwardUntilJunction();
-	rbt.moveForwardUntilJunction();
-	rbt.moveForwardUntilJunction();
-	rbt.moveForwardUntilJunction();
+	moveForwardMultipleTimes(4);
 }
 
 
