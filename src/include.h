@@ -5,6 +5,7 @@
 
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <stdexcept>
 
@@ -12,8 +13,13 @@
 #include <robot_link.h>
 #include <robot_delay.h>
 #include <stopwatch.h>
+#include <bitset>
+
+using namespace std;
+
 extern robot_link rlink;
 extern stopwatch watch;
+extern ofstream myfile;
 
 #define ROBOT_NUM 11   // The id number (see below)
 
