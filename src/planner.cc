@@ -54,11 +54,12 @@ void planner::getToHole(location loadLocation) {
 		throw invalid_argument( "invalid pickup location" );
 	rbt.moveBackUntilJunction();
 	rbt.turn(RIGHT);
-	if(loadLocation == pickUp2) {
+	if(loadLocation == pickUp1) {
 		rbt.moveForwardUntilJunction();
 	}
 	rbt.turn(RIGHT);
-	rbt.moveForwardUntilJunction();	
+	rbt.moveForwardUntilJunction();
+	rbt.moveForwardUntilTouch();
 }
 
 void planner::goUpRamp(location loadLocation) {
