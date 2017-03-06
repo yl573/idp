@@ -10,7 +10,12 @@ class planner {
 public:
 	planner();
 	void start();
+	
 
 private:
 	location loadLocation;
+	void getToConveyorDrop(location loadLocation);
+	void getToHole(location loadLocation);
+	void goUpRamp(location loadLocation);
+	void moveForwardMultipleTimes(int n);
 };

@@ -9,7 +9,6 @@ robot rbt;
 planner::planner() {
 	cout << "creating planner" << endl;
 }
-
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
@@ -33,18 +32,27 @@ void planner::start() {
 	}
 }
 
-void getToConveyorDrop(location loadLocation) {
-	if(loadLocation != pickUp1 || loadLocation != pickUp2)
-		throw invalid_argument( "invalid pickup location" );
-	rbt.turn(LEFT);
-	if(loadLocation == pickUp1) {
+void planner::moveForwardMultipleTimes(int n){
+	for(int i=0; i<n; ++i){
 		rbt.moveForwardUntilJunction();
 	}
 }
 
-void getToHole(location loadLocation) {
+void planner::getToConveyorDrop(location loadLocation) {
 	if(loadLocation != pickUp1 || loadLocation != pickUp2)
 		throw invalid_argument( "invalid pickup location" );
+	rbt.moveBackUntilJunction();	
+	rbt.turn(LEFT);
+	if(loadLocation == pickUp2) {
+		rbt.moveForwardUntilJunction();
+	}
+	rbt.moveForwardUntilTouch();
+}
+
+void planner::getToHole(location loadLocation) {
+	if(loadLocation != pickUp1 || loadLocation != pickUp2)
+		throw invalid_argument( "invalid pickup location" );
+	rbt.moveBackUntilJunction();
 	rbt.turn(RIGHT);
 	if(loadLocation == pickUp2) {
 		rbt.moveForwardUntilJunction();
@@ -53,7 +61,7 @@ void getToHole(location loadLocation) {
 	rbt.moveForwardUntilJunction();	
 }
 
-void goUpRamp(location loadLocation) {
+void planner::goUpRamp(location loadLocation) {
 	if(loadLocation != pickUp2 || loadLocation != dropOffLow)
 		throw invalid_argument( "invalid start location to go up the ramp" );
 	rbt.turn(LEFT);

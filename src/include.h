@@ -31,7 +31,7 @@ extern ofstream myfile;
 // #define
 // #define
 // #define
-
+#define STARTING_POSITION 0
 
 using namespace std;
 

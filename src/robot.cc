@@ -233,6 +233,19 @@ void robot::moveForwardUntilJunction() {
 	wheels.brake();
 }
 
+void robot::moveForwardUntilTouch(){
+	cout << "move forward until touch sensor pressed" << endl;
+	int lineSpeed = 127;
+	wheels.setStraightRotation(lineSpeed, 0);
+	delay(1000);
+	do {
+		sensors.readBoard2();
+		wheels.setStraightRotation(lineSpeed, getRotationDemand());
+	} while(!sensors.touching);
+	cout << "braking  " << "touching " << sensors.touching << endl;
+	wheels.brake();
+}
+
 void robot::moveBackUntilJunction() {
 	cout << "move back until junction" << endl;
 	int lineSpeed = -127;

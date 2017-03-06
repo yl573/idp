@@ -10,6 +10,7 @@ public:
 
 	robot();
 	void moveForwardUntilJunction();
+	void moveForwardUntilTouch();
 	void moveBackUntilJunction();
 	void turn(int direction); 
 	void moveBackUntilFrontOnLine();
