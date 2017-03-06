@@ -33,7 +33,7 @@ void planner::start() {
 	}
 }
 
-void dropOnConveyer(location loadLocation) {
+void getToConveyorDrop(location loadLocation) {
 	if(loadLocation != pickUp1 || loadLocation != pickUp2)
 		throw invalid_argument( "invalid pickup location" );
 	rbt.turn(LEFT);
@@ -42,7 +42,7 @@ void dropOnConveyer(location loadLocation) {
 	}
 }
 
-void dropInHole(location loadLocation) {
+void getToHole(location loadLocation) {
 	if(loadLocation != pickUp1 || loadLocation != pickUp2)
 		throw invalid_argument( "invalid pickup location" );
 	rbt.turn(RIGHT);
