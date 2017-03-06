@@ -14,8 +14,19 @@ void planner::start() {
 	cout << "mission start" << endl;
 	try {
 		//rbt.moveBackUntilJunction();
-		//rbt.moveForwardUntilJunction();
-		rbt.turn(LEFT);
+		//rbt.turn(RIGHT);
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
+		//rbt.test();
 	} catch(runtime_error& error) {
 		//cout << "ERROR: " << error.what() << endl;
 		//rbt.recovery();

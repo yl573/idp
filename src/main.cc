@@ -7,6 +7,10 @@ using namespace std;
 
 robot_link rlink;
 stopwatch watch;
+ofstream myfile;
+  
+
+  
 
 
 int main() {
@@ -16,8 +20,10 @@ int main() {
 	} else {
 		cout << "robot connected" << endl;
 	}
+	myfile.open ("log.txt");
 
 	//cout << rlink.request (READ_PORT_0) << endl;
 	planner myPlanner;
 	myPlanner.start();
+	myfile.close();
 }
