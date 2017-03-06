@@ -22,8 +22,6 @@ public:
 			frontReadings = board1Reading & 0b00000111;
 		}
 		backSensorOnLine = board1Reading & 0b00001000;
-		//cout << bitset<8>(board1Reading) << "  " << bitset<8>(board1Reading bitand 00001000) << endl;
-		//cout << backSensorOnLine << endl;
 		frontSensorState parsedState = getFrontSensorReading();
 		if(parsedState != BBB) 
 			cachedState = parsedState;
@@ -125,10 +123,9 @@ private:
 
 class wheelsDriver {
 public:
-
-
-	// +ve forward and right, -ve back and left
+	
 	void setStraightRotation(int straight, int rotation) {
+		// +ve forward and right, -ve back and left
 		//cout << "straight" << straight << "  rotation" << rotation << endl;
 		int leftDemand = clamp(straight + rotation);
 		int rightDemand = clamp(-straight + rotation);
@@ -216,7 +213,6 @@ public:
 
 
 robot::robot() {
-
 	cout << "creating robot" << endl;
 }
 
@@ -227,10 +223,8 @@ void robot::moveForwardUntilJunction() {
 	delay(1000);
 	do {
 		sensors.readBoard1();
-		cout << sensors.backSensorOnLine << endl;
 		wheels.setStraightRotation(lineSpeed, getRotationDemand());
 	} while(!sensors.backSensorOnLine);
-	cout << "braking  " << "back sensor online " << sensors.backSensorOnLine << endl;
 	wheels.brake();
 }
 
@@ -240,7 +234,6 @@ void robot::moveBackUntilJunction() {
 	wheels.setStraightRotation(lineSpeed, 0);
 	do {
 		sensors.readBoard1();
-		//wheels.setStraightRotation(lineSpeed, -getRotationDemand());
 	} while(!sensors.backSensorOnLine);
 	wheels.brake();
 }
@@ -260,7 +253,6 @@ void robot::test() {
 void robot::moveBackUntilFrontOnLine() {
 	cout << "move back until front on line" << endl;
 	int lineSpeed = -127;
-
 	do {
 		wheels.setStraightRotation(lineSpeed, -getRotationDemand());
 	} while(!sensors.getFrontSensorReading() != WWW);
@@ -270,7 +262,7 @@ void robot::moveBackUntilFrontOnLine() {
 
 int robot::getRotationDemand() { 
 	frontSensorState readings = sensors.getFrontSensorReading(); 
-	cout << bitset<8>(sensors.frontReadings) << endl;
+	//cout << bitset<8>(sensors.frontReadings) << endl;
 	if(readings == BWB || readings == WWW) 
 		return 0;
 	else if(readings == BBB) {
@@ -281,9 +273,7 @@ int robot::getRotationDemand() {
 	else {
 		// just adjust path
 		int offset = getOffset(readings);
-		return offset * 80
-		
-		;
+		return offset * 80;
 	}
 }
 
@@ -294,33 +284,12 @@ void robot::turn(int direction) {
 
 	if(direction != RIGHT && direction != LEFT) 
 		throw invalid_argument( "turning direction can only be left or right" );
-
 	if(direction == RIGHT)
 		rotationSpeed *= -1;
 	
 	wheels.setStraightRotation(0, rotationSpeed);
 	
 	delay(1800);
-
-	/*watch.start();
-	while(true) {
-		
-		sensors.readBoard1();
-		//currentState = sensors.getFrontSensorReading();
-		//cout << "readings: " << bitset<8>(sensors.frontReadings) << endl;
-
-		if(sensors.frontReadings == 0b00000010) {//sensors.frontReadings != 0b0000000 || sensors.frontReadings != 0b00000101) {
-			cout << "turn complete" << endl;
-			break;
-		}
-		else {
-			if(watch.read()> 10000)
-				recovery();
-		}
-		
-		wheels.setStraightRotation(0, rotationSpeed);
-	}*/
-
 	wheels.brake();
 }
 
