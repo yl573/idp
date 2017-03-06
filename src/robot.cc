@@ -71,10 +71,11 @@ public:
 		rlink.command (WRITE_PORT_1, 0b00000001);
 		delay (2000);
 		rlink.command (WRITE_PORT_1, 0b00000000);
-		delay (8000);
+		delay (2000);
 		rlink.command (WRITE_PORT_1, 0b00000001);
 		delay (2000);
-		rlink.command (WRITE_PORT_1, 0b00000000);			
+		rlink.command (WRITE_PORT_1, 0b00000000);
+		delay (4000);			
 	}
 
 	// get readings from the front sensors
