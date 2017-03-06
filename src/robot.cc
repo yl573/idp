@@ -211,7 +211,6 @@ public:
 } forklift(STARTING_POSITION); //startingPosition is global; indicates the starting position of the forklift
 
 
-
 robot::robot() {
 	cout << "creating robot" << endl;
 }

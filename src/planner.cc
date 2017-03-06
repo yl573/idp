@@ -13,10 +13,10 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		//rbt.moveBackUntilJunction();
-		//rbt.turn(RIGHT);
+		rbt.moveBackUntilJunction();
+		rbt.turn(RIGHT);
 		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
+		/*rbt.moveForwardUntilJunction();
 		rbt.moveForwardUntilJunction();
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilJunction();
@@ -25,7 +25,7 @@ void planner::start() {
 		rbt.moveForwardUntilJunction();
 		rbt.moveForwardUntilJunction();
 		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();*/
 		//rbt.test();
 	} catch(runtime_error& error) {
 		//cout << "ERROR: " << error.what() << endl;
@@ -71,6 +71,28 @@ void goUpRamp(location loadLocation) {
 	rbt.moveForwardUntilJunction();
 	rbt.moveForwardUntilJunction();
 	rbt.moveForwardUntilJunction();
+}
+
+
+void stackPallet(int platform, int height) {
+	rbt.moveBackUntilJunction();
+	if(platform == 1)
+		rbt.turn(LEFT);
+	else
+		rbt.turn(RIGHT);
+	rbt.moveForwardUntilTouch();
+}
+
+void returnToTopConveyer(int platform) {
+	rbt.moveBackUntilJunction();
+	rbt.moveBackUntilFrontOnLine();
+	//raise forklift
+	rbt.moveForwardUntilJunction();
+	if(platform == 1)
+		rbt.turn(RIGHT);
+	else
+		rbt.turn(LEFT);
+	rbt.moveForwardUntilTouch();
 }
 
 
