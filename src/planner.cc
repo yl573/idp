@@ -12,21 +12,10 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		rbt.moveBackUntilFrontOnLine();
-		//rbt.moveBackUntilJunction();
-		//rbt.turn(RIGHT);
-		//rbt.moveForwardUntilJunction();
-		/*rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();*/
-		//rbt.test();
+		rbt.test();
+		//getToHole(pickUp2);
+		//goUpRamp(pickUp2);
+		//rbt.moveForwardUntilTouch();
 	} catch(runtime_error& error) {
 		//cout << "ERROR: " << error.what() << endl;
 		//rbt.recovery();
@@ -40,7 +29,7 @@ void planner::moveForwardMultipleTimes(int n){
 }
 
 void planner::getToConveyorDrop(location loadLocation) {
-	if(loadLocation != pickUp1 || loadLocation != pickUp2)
+	if(loadLocation != pickUp1_conveyor && loadLocation != pickUp2)
 		throw invalid_argument( "invalid pickup location" );
 	rbt.moveBackUntilJunction();	
 	rbt.turn(LEFT);
@@ -51,11 +40,11 @@ void planner::getToConveyorDrop(location loadLocation) {
 }
 
 void planner::getToHole(location loadLocation) {
-	if(loadLocation != pickUp1 || loadLocation != pickUp2)
+	if(loadLocation != pickUp1_conveyor && loadLocation != pickUp2)
 		throw invalid_argument( "invalid pickup location" );
 	rbt.moveBackUntilJunction();
 	rbt.turn(RIGHT);
-	if(loadLocation == pickUp1) {
+	if(loadLocation == pickUp1_conveyor) {
 		rbt.moveForwardUntilJunction();
 	}
 	rbt.turn(RIGHT);
@@ -64,12 +53,12 @@ void planner::getToHole(location loadLocation) {
 }
 
 void planner::goUpRamp(location loadLocation) {
-	if(loadLocation != pickUp2 || loadLocation != dropOffLow)
+	if(loadLocation != pickUp2 && loadLocation != hole)
 		throw invalid_argument( "invalid start location to go up the ramp" );
-	rbt.turn(RIGHT);
-	rbt.turn(RIGHT);
+	//rbt.turn(LEFT);
+	//rbt.turn(LEFT);
 	rbt.moveForwardUntilJunction();
-	if(loadLocation == dropOffLow) 
+	if(loadLocation == hole) 
 		rbt.turn(RIGHT);
 	moveForwardMultipleTimes(2);
 	rbt.turn(RIGHT);
@@ -78,8 +67,47 @@ void planner::goUpRamp(location loadLocation) {
 	moveForwardMultipleTimes(4);
 }
 
+void planner::getToPickUp1(location loadLocation){
+	if(loadLocation != pickUp1_conveyor && loadLocation != hole && loadLocation != origin)
+		throw invalid_argument( "invalid start location to go up the ramp" );
+	if(loadLocation == pickUp1_conveyor){
+		rbt.moveBackUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+	}
+	else if(loadLocation == hole){
+		rbt.moveBackUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+	}
+	else if(loadLocation == origin){
+		rbt.turn(RIGHT); //check how we start
+		moveForwardMultipleTimes(3);
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+	}
+}
 
-void stackPallet(int platform, int height) {
+void planner::getToPickUp2(location loadLocation){
+	if(loadLocation != pickUp1_conveyor && loadLocation != hole)
+		throw invalid_argument( "invalid start location to go up the ramp" );
+	rbt.moveBackUntilJunction();
+	rbt.turn(LEFT);
+	rbt.turn(LEFT);
+	rbt.moveForwardUntilJunction();
+	if(loadLocation == pickUp1_conveyor){
+		rbt.turn(LEFT);
+	}
+	else if(loadLocation == hole){
+		rbt.moveForwardUntilJunction();
+	}
+}
+
+
+/*
+void planner::stackPallet(int platform, int height) {
 	rbt.moveBackUntilJunction();
 	if(platform == 1)
 		rbt.turn(LEFT);
@@ -88,7 +116,7 @@ void stackPallet(int platform, int height) {
 	rbt.moveForwardUntilTouch();
 }
 
-void returnToTopConveyer(int platform) {
+void planner::returnToTopConveyer(int platform) {
 	rbt.moveBackUntilJunction();
 	rbt.moveBackUntilFrontOnLine();
 	//raise forklift
@@ -98,6 +126,6 @@ void returnToTopConveyer(int platform) {
 	else
 		rbt.turn(LEFT);
 	rbt.moveForwardUntilTouch();
-}
+}*/
 
 

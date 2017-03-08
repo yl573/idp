@@ -31,6 +31,7 @@ public:
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
 		touching = (bool) board2Reading & 0b00000010;
+		cout << bitset<8>(board2Reading & 0b00000010) << endl;
 	}
 
 	// gets bits 2-7 from board2Reading
@@ -231,12 +232,10 @@ void robot::moveForwardUntilTouch(){
 	cout << "move forward until touch sensor pressed" << endl;
 	int lineSpeed = 127;
 	wheels.setStraightRotation(lineSpeed, 0);
-	delay(1000);
 	do {
 		sensors.readBoard2();
-		wheels.setStraightRotation(lineSpeed, getRotationDemand());
+		wheels.setStraightRotation(lineSpeed, 0);
 	} while(!sensors.touching);
-	cout << "braking  " << "touching " << sensors.touching << endl;
 	wheels.brake();
 }
 
@@ -251,14 +250,13 @@ void robot::moveBackUntilJunction() {
 }
 
 void robot::test() {
-	int prev;
-	watch.start();
 	while(true) {
-		int reading = rlink.request (READ_PORT_0);
-		if(reading != prev) {
-			cout << "board1: " << bitset<8>(reading) << "\n";
-			prev = reading;
-		}
+		/*int reading = rlink.request (ADC0);
+		//if(reading != prev) {
+		//reading = reading & 0b00000010;
+		0cout << "board1: " << reading << "\n";
+		//}*/
+		rlink.command(MOTOR_3_GO, 127);
 	}
 } 
 
@@ -283,7 +281,7 @@ int robot::getRotationDemand() {
 	else {
 		// just adjust path
 		int offset = getOffset(readings);
-		return offset * 80;
+		return offset * 60;
 	}
 }
 
@@ -318,12 +316,19 @@ void robot::recovery() {
 	// An error is throw when a line is found
 	try {
 		int time = 1000;
+		//wheels.setStraightRotation(0, rotationSpeed);
+		//waitTimeoutOrReachedLine(time);
 		while(true) {
 			// timeouts should make it turn 90 degrees
-			wheels.setStraightRotation(0, rotationSpeed);
-			waitTimeoutOrReachedLine(time);
 			wheels.setStraightRotation(0, -rotationSpeed);
 			waitTimeoutOrReachedLine(time);
+			
+			wheels.setStraightRotation(0, rotationSpeed);
+			waitTimeoutOrReachedLine(time*2);
+			
+			wheels.setStraightRotation(0, -rotationSpeed);
+			waitTimeoutOrReachedLine(time);
+			
 			time += 1000;
 		}
 	} catch(runtime_error& error) {
