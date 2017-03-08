@@ -368,6 +368,29 @@ int robot::getOffset(frontSensorState readings) {
 	}
 }
 
+void robot::signalLoadType(turned mturned) {
+	color palletColor = checkType();
+	if (mturned == on){
+		if (palletColor == red){
+			rlink.command (WRITE_PORT_0, 0b11100000);
+		}
+		else if (palletColor == green){
+			rlink.command (WRITE_PORT_0, 0b11010000);
+		}
+		else if (palletColor == black){
+			rlink.command (WRITE_PORT_0, 0b10110000);
+		}
+		else if (palletColor == white){
+			rlink.command (WRITE_PORT_0, 0b01110000);
+		}
+	}
+	else if (mturned == off){
+		rlink.command (WRITE_PORT_0, 0b11110000);
+	}
+	else {
+		throw invalid_argument( "invalid input" );
+	}
+}
 
 
 
