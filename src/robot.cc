@@ -30,8 +30,8 @@ public:
 	// stores reading in board2Reading, bit 1 converts to touching
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
-		touching = (bool) board2Reading & 0b00000010;
-		cout << bitset<8>(board2Reading & 0b00000010) << endl;
+		touching = (board2Reading & 0b00000010) != 2;
+		cout << touching << endl;
 	}
 
 	// gets bits 2-7 from board2Reading
@@ -251,12 +251,12 @@ void robot::moveBackUntilJunction() {
 
 void robot::test() {
 	while(true) {
-		/*int reading = rlink.request (ADC0);
+		int reading = rlink.request (ADC4);
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
-		0cout << "board1: " << reading << "\n";
-		//}*/
-		rlink.command(MOTOR_3_GO, 127);
+		cout << "board1: " << reading << "\n";
+		
+		//rlink.command(MOTOR_3_GO, 127);
 	}
 } 
 
@@ -297,7 +297,11 @@ void robot::turn(int direction) {
 	
 	wheels.setStraightRotation(0, rotationSpeed);
 	
-	delay(1800);
+	delay(1450);
+	/*watch.start();
+	do {
+		sensors.readBoard1();
+	} while(watch.read() < 500 || !sensors.backSensorOnLine);*/
 	wheels.brake();
 }
 
