@@ -56,21 +56,19 @@ public:
 	
 	// automatically turn on pallet type LEDs
 	color checkType() {
-		int intensity = rlink.request (ADC0);
-		if(intensity < 50 ) {
-			rlink.command (WRITE_PORT_0, 0b00010000);
+		int intensity = rlink.request (ADC4);
+		cout << "intensity" << intensity << endl;
+		//return red;
+		if(intensity < 37 ) {
 			return white;
 		}
-		if(intensity > 50 && intensity < 100) {
-			rlink.command (WRITE_PORT_0, 0b00100000);
-			return green;
-		}
-		if(intensity > 50 && intensity < 150) {
-			rlink.command (WRITE_PORT_0, 0b01000000);
+		if(intensity >= 37 && intensity < 92) {
 			return red;
 		}
+		if(intensity >= 82 && intensity < 150) {
+			return green;
+		}
 		else {
-			rlink.command (WRITE_PORT_0, 0b10000000);
 			return black;
 		}
 	}
@@ -251,11 +249,11 @@ void robot::moveBackUntilJunction() {
 
 void robot::test() {
 	while(true) {
-		int reading = rlink.request (ADC4);
+		//int reading = rlink.request (ADC4);
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
-		cout << "board1: " << reading << "\n";
-		
+		//cout << "board1: " << reading << "\n";
+		signalLoadType();
 		//rlink.command(MOTOR_3_GO, 127);
 	}
 } 
@@ -281,7 +279,7 @@ int robot::getRotationDemand() {
 	else {
 		// just adjust path
 		int offset = getOffset(readings);
-		return offset * 60;
+		return offset * 80;
 	}
 }
 
@@ -297,11 +295,11 @@ void robot::turn(int direction) {
 	
 	wheels.setStraightRotation(0, rotationSpeed);
 	
-	delay(1450);
-	/*watch.start();
+	delay(1300);
+	watch.start();
 	do {
 		sensors.readBoard1();
-	} while(watch.read() < 500 || !sensors.backSensorOnLine);*/
+	} while(watch.read() < 200 || !sensors.backSensorOnLine);
 	wheels.brake();
 }
 
@@ -327,13 +325,22 @@ void robot::recovery() {
 			wheels.setStraightRotation(0, -rotationSpeed);
 			waitTimeoutOrReachedLine(time);
 			
+			wheels.setStraightRotation(127, 0);	
+			waitTimeoutOrReachedLine(500);
+					
 			wheels.setStraightRotation(0, rotationSpeed);
 			waitTimeoutOrReachedLine(time*2);
+			
+			wheels.setStraightRotation(127, 0);	
+			waitTimeoutOrReachedLine(1000);
 			
 			wheels.setStraightRotation(0, -rotationSpeed);
 			waitTimeoutOrReachedLine(time);
 			
-			time += 1000;
+			wheels.setStraightRotation(127, 0);	
+			waitTimeoutOrReachedLine(500);
+			
+			//time += 1000;
 		}
 	} catch(runtime_error& error) {
 		wheels.brake();
@@ -368,28 +375,28 @@ int robot::getOffset(frontSensorState readings) {
 	}
 }
 
-void robot::signalLoadType(turned mturned) {
-	color palletColor = checkType();
-	if (mturned == on){
-		if (palletColor == red){
-			rlink.command (WRITE_PORT_0, 0b11100000);
-		}
-		else if (palletColor == green){
-			rlink.command (WRITE_PORT_0, 0b11010000);
-		}
-		else if (palletColor == black){
-			rlink.command (WRITE_PORT_0, 0b10110000);
-		}
-		else if (palletColor == white){
-			rlink.command (WRITE_PORT_0, 0b01110000);
-		}
+void robot::signalLoadType() {
+	color palletColor = sensors.checkType();
+	//if (mturned == on){
+	if (palletColor == red){
+		rlink.command (WRITE_PORT_0, 0b11010000);
 	}
-	else if (mturned == off){
+	else if (palletColor == green){
+		rlink.command (WRITE_PORT_0, 0b10110000);
+	}
+	else if (palletColor == black){
+		rlink.command (WRITE_PORT_0, 0b01110000);
+	}
+	else {
+		rlink.command (WRITE_PORT_0, 0b11100000);
+	}
+	//}
+	/*else if (mturned == off){
 		rlink.command (WRITE_PORT_0, 0b11110000);
 	}
 	else {
 		throw invalid_argument( "invalid input" );
-	}
+	}*/
 }
 
 

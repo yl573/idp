@@ -12,9 +12,10 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		//rbt.test();
+		rbt.test();
+		
 		//getToHole(pickUp2);
-		goUpRamp(pickUp2);
+		//goUpRamp(pickUp2);
 		//rbt.moveForwardUntilJunction();
 		//rbt.turn(RIGHT);
 		//rbt.moveForwardUntilTouch();

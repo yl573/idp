@@ -17,7 +17,7 @@ public:
 	void moveBackUntilFrontOnLine();
 	void recovery();
 	void test();
-	void signalLoadType()
+	void signalLoadType();
 private:
 	int getOffset(frontSensorState readings);
 	void waitTimeoutOrReachedLine(int timeout);
