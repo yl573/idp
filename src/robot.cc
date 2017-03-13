@@ -35,6 +35,30 @@ public:
 	}
 
 	// gets bits 2-7 from board2Reading
+
+	int getforkliftReadingsADC(){
+		int height0 = rlink.request (ADC0);
+		int height1 = rlink.request (ADC1);
+		int height2 = rlink.request (ADC2);
+		int height3 = rlink.request (ADC3);
+		if(height0 > 100 ) { //find the value
+			return 0;
+		}
+		else if(height1 > 100 ) { 
+			return 1;
+		}
+		else if(height2 > 100 ) { 
+			return 2;
+		}
+		else if(height3 > 100 ) { 
+			return 3;
+		}
+		else{
+			return -1;
+		}
+	}
+
+
 	int getForkliftReadings() {	
 		int forkliftReading = board2Reading & 0b00111111;
 
