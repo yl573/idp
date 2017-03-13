@@ -12,9 +12,13 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
+		rbt.forkliftDown(8000);
 		//rbt.test();
-		rbt.forkliftUp(10000);
-		
+		//rbt.forkliftDown(10000);
+		//rbt.moveForwardUntilJunction();
+		//rbt.turn(RIGHT);
+		//rbt.moveForwardUntilJunction();
+		//rbt.moveForwardUntilTouch();
 		//getToHole(pickUp2);
 		//goUpRamp(pickUp2);
 		/*rbt.moveForwardUntilJunction();
@@ -40,8 +44,8 @@ void planner::start() {
 		rbt.forkliftDown(10000);
 		rbt.moveBackUntilJunction();
 
-		
-		while(true) {
+		*/
+		/*while(true) {
 			rbt.signalLoadType(true);
 		}*/
 		//rbt.turn(RIGHT);
