@@ -58,16 +58,16 @@ public:
 	color checkType() {
 		int intensity = rlink.request (ADC4);
 		cout << "intensity" << intensity << endl;
-		if(intensity < 28 ) {
+		if(intensity < 30 ) {
 			return white;
 		}
-		else if(intensity >= 60 && intensity < 100) {
+		else if(intensity >= 50 && intensity < 100) {
 			return red;
 		}
-		else if(intensity >= 100 && intensity < 170) {
+		else if(intensity >= 100 && intensity < 120) {
 			return green;
 		}
-		else if(intensity >= 170) {
+		else if(intensity >= 120) {
 			return black;
 		}
 		else {
@@ -124,6 +124,11 @@ private:
 
 class wheelsDriver {
 public:
+
+	void setLeftRight(int l, int r) {
+		rlink.command(MOTOR_1_GO, l);
+		rlink.command(MOTOR_2_GO, r);
+	}
 	
 	void setStraightRotation(int straight, int rotation) {
 		// +ve forward and right, -ve back and left
@@ -220,11 +225,24 @@ void robot::moveForwardUntilJunction() {
 	int lineSpeed = 127;
 	wheels.setStraightRotation(lineSpeed, 0);
 	delay(1000);
-	do {
+	bool backLine = false;
+	while(true) {
 		sensors.readBoard1();
+		frontSensorState reading = sensors.getFrontSensorReading();
+		if(reading == WWW) {
+			backLine = false;
+			break;
+		}
+		else if(sensors.backSensorOnLine) {
+			backLine = true;
+			break;
+		}
 		wheels.setStraightRotation(lineSpeed, getRotationDemand());
-	} while(!sensors.backSensorOnLine);
-	delay(100);
+	} 
+	if(!backLine) {
+		wheels.setStraightRotation(lineSpeed, 0);
+		delay(1000);
+	}
 	wheels.brake();
 }
 
@@ -286,18 +304,33 @@ void robot::moveBackUntilFrontOnLine() {
 
 int robot::getRotationDemand() { 
 	frontSensorState readings = sensors.getFrontSensorReading(); 
-	//cout << bitset<8>(sensors.frontReadings) << endl;
-	if(readings == BWB || readings == WWW) 
-		return 0;
-	else if(readings == BBB) {
-		// lost!! disaster recovery
-		recovery();
+	static int integralGain = 0;
+	static int count = 0;
+	int proportionGain = 40;
+	if(readings == BWB || readings == WWW) {
+		count = 0;
+		integralGain = 0;
 		return 0;
 	}
 	else {
-		// just adjust path
-		int offset = getOffset(readings);
-		return offset * 40;
+		count++;
+		if(count == 10) {
+			integralGain++;
+			count = 0;
+		}
+		if(readings == BWW)
+			return 1 * proportionGain + integralGain;
+		else if(readings == BBW)
+			return 2 * proportionGain + integralGain;
+		else if(readings == WWB)
+			return -1 * proportionGain + integralGain;
+		else if(readings == WBB)
+			return -2 * proportionGain + integralGain;
+		else {
+			cout << readings << endl;
+			//throw invalid_argument( "front sensor readings wrong, check robot.sensors" );
+			return 0;
+		}
 	}
 }
 
@@ -318,7 +351,7 @@ void robot::turn(int direction) {
 	
 	wheels.setStraightRotation(0, rotationSpeed);
 	
-	delay(1500);
+	delay(1550);
 	/*watch.start();
 	do {
 		sensors.readBoard1();
@@ -331,11 +364,14 @@ void robot::recovery() {
 	cout << "Starting recovery" << endl;
 	wheels.brake();
 	int rotationSpeed = 64; // if cachedState is not reliable, take a leap of faith
+	int lineSpeed = 64;
 	if(sensors.cachedState == BWW || sensors.cachedState == BBW) {
 		rotationSpeed = 64;
+		lineSpeed = 64;
 	}
 	else if (sensors.cachedState == WWB || sensors.cachedState == WBB) {
 		rotationSpeed = -64;
+		lineSpeed = -64;
 	}
 
 	// S-shaped search
@@ -345,26 +381,35 @@ void robot::recovery() {
 		//wheels.setStraightRotation(0, rotationSpeed);
 		//waitTimeoutOrReachedLine(time);
 		while(true) {
-			// timeouts should make it turn 90 degrees
-			wheels.setStraightRotation(0, -rotationSpeed);
+			wheels.setLeftRight(0, 127);
 			waitTimeoutOrReachedLine(time);
+			wheels.setLeftRight(0, -127);
+			waitTimeoutOrReachedLine(time);
+			wheels.setLeftRight(127, 0);
+			waitTimeoutOrReachedLine(time);
+			wheels.setLeftRight(-127, 0);
+			waitTimeoutOrReachedLine(time);
+			time += 1000;
+			// timeouts should make it turn 90 degrees
+			//wheels.setStraightRotation(lineSpeed, -rotationSpeed);
+			//waitTimeoutOrReachedLine(time);
 			
 			//wheels.setStraightRotation(127, 0);	
 			//waitTimeoutOrReachedLine(500);
 					
-			wheels.setStraightRotation(0, rotationSpeed);
-			waitTimeoutOrReachedLine(time*2);
+			//wheels.setStraightRotation(-lineSpeed, rotationSpeed);
+			//waitTimeoutOrReachedLine(time*2);
 			
 			//wheels.setStraightRotation(127, 0);	
 			//waitTimeoutOrReachedLine(1000);
 			
-			wheels.setStraightRotation(0, -rotationSpeed);
-			waitTimeoutOrReachedLine(time);
+			//wheels.setStraightRotation(0, -rotationSpeed);
+			//waitTimeoutOrReachedLine(time);
 			
 			//wheels.setStraightRotation(127, 0);	
 			//waitTimeoutOrReachedLine(500);
 			
-			time += 1000;
+			
 		}
 	} catch(runtime_error& error) {
 		wheels.brake();
@@ -380,22 +425,6 @@ void robot::waitTimeoutOrReachedLine(int timeout) {
 		frontSensorState reading = sensors.getFrontSensorReading();
 		if(reading != BBB)
 			throw runtime_error( "line is found!" );
-	}
-}
-
-int robot::getOffset(frontSensorState readings) {
-	if(readings == BWW)
-		return 1;
-	else if(readings == BBW)
-		return 2;
-	else if(readings == WWB)
-		return -1;
-	else if(readings == WBB)
-		return -2;
-	else {
-		cout << readings << endl;
-		//throw invalid_argument( "front sensor readings wrong, check robot.sensors" );
-		return 0;
 	}
 }
 
