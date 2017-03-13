@@ -12,11 +12,38 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		rbt.test();
+		//rbt.test();
+		rbt.forkliftUp(10000);
 		
 		//getToHole(pickUp2);
 		//goUpRamp(pickUp2);
+		/*rbt.moveForwardUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+		rbt.moveBackUntilJunction();
+		rbt.forkliftDown(10000);
+		rbt.moveForwardUntilTouch();
+		rbt.forkliftUp(10000);
+		rbt.moveBackUntilJunction();
+		rbt.turn(LEFT);
 		//rbt.moveForwardUntilJunction();
+		rbt.moveForwardMs(2000);
+		rbt.forkliftDown(10000);
+		rbt.moveBackUntilJunction();
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+		rbt.forkliftUp(10000);
+		rbt.moveBackUntilJunction();
+		rbt.turn(LEFT);
+		//rbt.moveForwardUntilJunction();
+		rbt.moveForwardMs(2000);
+		rbt.forkliftDown(10000);
+		rbt.moveBackUntilJunction();
+
+		
+		while(true) {
+			rbt.signalLoadType(true);
+		}*/
 		//rbt.turn(RIGHT);
 		//rbt.moveForwardUntilTouch();
 	} catch(runtime_error& error) {

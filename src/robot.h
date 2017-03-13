@@ -3,8 +3,7 @@
 using namespace std;
 
 enum frontSensorState {BWB, WWB, WBB, BWW, BBW, BBB, WWW, WBW};
-enum color {red, green, black, white};
-enum turned {on, off};
+enum color {red, green, black, white, nothing};
 
 class robot {
 public:
@@ -17,7 +16,10 @@ public:
 	void moveBackUntilFrontOnLine();
 	void recovery();
 	void test();
-	void signalLoadType();
+	void signalLoadType(bool on);
+	void forkliftUp(int ms);
+	void forkliftDown(int ms);
+	void moveForwardMs(int ms);
 private:
 	int getOffset(frontSensorState readings);
 	void waitTimeoutOrReachedLine(int timeout);
