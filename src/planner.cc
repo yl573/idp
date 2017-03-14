@@ -1,4 +1,4 @@
-
+ 
 #include "include.h"
 #include "planner.h"
 #include "robot.h"
@@ -12,11 +12,11 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		rbt.forkliftDown(8000);
-		//rbt.test();
+		//rbt.forkliftDown(8000);
+		rbt.test();
 		//rbt.forkliftDown(10000);
-		//rbt.moveForwardUntilJunction();
-		//rbt.turn(RIGHT);
+		rbt.moveForwardUntilJunction();
+		rbt.turn(RIGHT);
 		//rbt.moveForwardUntilJunction();
 		//rbt.moveForwardUntilTouch();
 		//getToHole(pickUp2);

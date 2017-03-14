@@ -31,7 +31,8 @@ public:
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
 		touching = (board2Reading & 0b00000010) != 2;
-		//cout << touching << endl;
+		cout << touching << endl;
+		cout << bitset<8>(board2Reading & 0b00100010) << endl;
 	}
 
 	
@@ -201,7 +202,7 @@ public:
 	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
 	void setHeight(int height){
 		sensors.readBoard2();
-		mReading = sensors.getForkliftReadingsADC();
+		mReading = sensors.getforkliftReadingsADC();
 		
 		if (height == 1){
 			if (height > lastHeight){//we are at 0
@@ -255,7 +256,7 @@ public:
 				while (true){
 					rlink.command(MOTOR_3_GO, 127);
 					sensors.readBoard2();
-					mReading = sensors.getForkliftReadingsADC();
+					mReading = sensors.getforkliftReadingsADC();
 					if(mReading == 0){lastHeight = 0; break;}
 					if(mReading == 2){lastHeight = 2; break;}
 					if(mReading == 4){lastHeight = 4; break;}
@@ -305,17 +306,19 @@ void robot::moveForwardUntilJunction() {
 		frontSensorState reading = sensors.getFrontSensorReading();
 		if(reading == WWW) {
 			backLine = false;
+			cout << "WWW" << endl;
 			break;
 		}
 		else if(sensors.backSensorOnLine) {
 			backLine = true;
+			cout << "back on line" << endl;
 			break;
 		}
 		wheels.setStraightRotation(lineSpeed, getRotationDemand());
 	} 
 	if(!backLine) {
 		wheels.setStraightRotation(lineSpeed, 0);
-		delay(1000);
+		delay(350);
 	}
 	wheels.brake();
 }
@@ -355,13 +358,14 @@ void robot::forkliftDown(int ms) {
 
 void robot::test() {
 	while(true) {
-		int reading0 = rlink.request (ADC0);
+		/*int reading0 = rlink.request (ADC0);
 		int reading1 = rlink.request (ADC1);
 		int reading2 = rlink.request (ADC2);
-		int reading3 = rlink.request (ADC3);
+		int reading3 = rlink.request (ADC3);*/
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
-		cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
+		sensors.readBoard2();
+		//cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
 		//signalLoadType(1);
 		//rlink.command(MOTOR_3_GO, 127);
 		//rlink.command(MOTOR_4_GO, 255);
@@ -425,13 +429,14 @@ void robot::turn(int direction) {
 	
 	wheels.setStraightRotation(0, rotationSpeed);
 	
-	delay(1550);
-	/*watch.start();
+	delay(500);
+	watch.start();
 	do {
 		sensors.readBoard1();
-	} while(watch.read() < 200 || !sensors.backSensorOnLine);
-	delay(80);*/
+	} while(!sensors.backSensorOnLine);
+	//delay(80);
 	wheels.brake();
+	//watch.read() < 1600); //|| 
 }
 
 void robot::recovery() {
