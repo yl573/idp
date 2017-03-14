@@ -36,6 +36,30 @@ public:
 	}
 
 	// gets bits 2-7 from board2Reading
+
+	int getforkliftReadingsADC(){
+		int height0 = rlink.request (ADC0);
+		int height2 = rlink.request (ADC1);
+		int height4 = rlink.request (ADC2);
+		int height5 = rlink.request (ADC3);
+		if(height0 > 100 ) { //find the value from tests
+			return 0;
+		}
+		else if(height2 > 100 ) { 
+			return 2;
+		}
+		else if(height4 > 100 ) { 
+			return 4;
+		}
+		else if(height5 > 100 ) { 
+			return 5;
+		}
+		else{
+			return -1;
+		}
+	}
+
+
 	int getForkliftReadings() {	
 		int forkliftReading = board2Reading & 0b00111111;
 
@@ -176,36 +200,84 @@ public:
 	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
 	void setHeight(int height){
 		sensors.readBoard2();
-		mReading = sensors.getForkliftReadings();
-		if (height == lastHeight){
-			if(mReading != height){
-				while (true){
-					rlink.command(MOTOR_3_GO, 127);
-					sensors.readBoard2();
-					mReading = sensors.getForkliftReadings();
-					if(mReading == 0){lastHeight = 0; break;}
-					if(mReading == 1){lastHeight = 1; break;}
-					if(mReading == 2){lastHeight = 2; break;}
-					if(mReading == 3){lastHeight = 3; break;}
-					if(mReading == 4){lastHeight = 4; break;}
-					if(mReading == 5){lastHeight = 5; break;}
-				}
+		mReading = sensors.getForkliftReadingsADC();
+		
+		if (height == 1){
+			if (height > lastHeight){//we are at 0
+			#ifndef TEST
+			rlink.command(MOTOR_3_GO, 127);
+			delay(1000);
+			rlink.command (RAMP_TIME, 0);
+			rlink.command(MOTOR_3_GO, 0);
+			#endif
+			}
+			if (height < lastHeight){
+			#ifndef TEST
+			do{
+				sensors.readBoard2();
+				rlink.command(MOTOR_3_GO, 255);
+			}while (getForkliftReadingADC() != 2);
+			delay(1000);
+			rlink.command (RAMP_TIME, 0);
+			rlink.command(MOTOR_3_GO, 0);
+			#endif
 			}
 		}
-		if (height > lastHeight){
+
+		else if (height == 3){
+			if (height > lastHeight){
 			#ifndef TEST
 			do{
 				sensors.readBoard2();
 				rlink.command(MOTOR_3_GO, 127);
-			}while (getForkliftReadings() != height);
+			}while (getForkliftReadingADC() != 2);
+			delay(1000);
+			rlink.command (RAMP_TIME, 0);
+			rlink.command(MOTOR_3_GO, 0);
+			#endif
+			}
+			if (height < lastHeight){
+			#ifndef TEST
+			do{
+				sensors.readBoard2();
+				rlink.command(MOTOR_3_GO, 255);
+			}while (getForkliftReadingADC() != 4);
+			delay(1000);
+			rlink.command (RAMP_TIME, 0);
+			rlink.command(MOTOR_3_GO, 0);
+			#endif
+			}
+		}
+
+		else if (height == lastHeight){
+			if(mReading != height){
+				while (true){
+					rlink.command(MOTOR_3_GO, 127);
+					sensors.readBoard2();
+					mReading = sensors.getForkliftReadingsADC();
+					if(mReading == 0){lastHeight = 0; break;}
+					if(mReading == 2){lastHeight = 2; break;}
+					if(mReading == 4){lastHeight = 4; break;}
+					if(mReading == 5){lastHeight = 5; break;}
+				}
+				rlink.command (RAMP_TIME, 0);
+				rlink.command(MOTOR_3_GO, 0);
+			}
+		}
+		else if (height > lastHeight){
+			#ifndef TEST
+			do{
+				sensors.readBoard2();
+				rlink.command(MOTOR_3_GO, 127);
+			}while (getForkliftReadingsADC() != height);
 			#endif
 		}
-		if (height < lastHeight){
+		else if (height < lastHeight){
 			#ifndef TEST
 			do{
 				readBoard2();
 				rlink.command(MOTOR_3_GO, 255);
-			}while (getForkliftReadings() != height);
+			}while (getForkliftReadingsADC() != height);
 			#endif
 		}
 		#ifndef TEST
