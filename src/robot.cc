@@ -41,16 +41,16 @@ public:
 		int height2 = rlink.request (ADC1);
 		int height4 = rlink.request (ADC2);
 		int height5 = rlink.request (ADC3);
-		if(height0 > 100 ) { //find the value from tests
+		if(height0 < 10 ) { //find the value from tests
 			return 0;
 		}
-		else if(height2 > 100 ) { 
+		else if(height2 < 10 ) { 
 			return 2;
 		}
-		else if(height4 > 100 ) { 
+		else if(height4 < 10 ) { 
 			return 4;
 		}
-		else if(height5 > 100 ) { 
+		else if(height5 < 10 ) { 
 			return 5;
 		}
 		else{
@@ -79,7 +79,7 @@ public:
 			return -1;
 	}
 	*/
-	
+
 	// automatically turn on pallet type LEDs
 	color checkType() {
 		int intensity = rlink.request (ADC4);
