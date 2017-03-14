@@ -200,7 +200,7 @@ public:
 	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
 	void setHeight(int height){
 		sensors.readBoard2();
-		mReading = sensors.getForkliftReadingsADC();
+		mReading = sensors.getforkliftReadingsADC();
 		
 		if (height == 1){
 			if (height > lastHeight){//we are at 0
@@ -254,7 +254,7 @@ public:
 				while (true){
 					rlink.command(MOTOR_3_GO, 127);
 					sensors.readBoard2();
-					mReading = sensors.getForkliftReadingsADC();
+					mReading = sensors.getforkliftReadingsADC();
 					if(mReading == 0){lastHeight = 0; break;}
 					if(mReading == 2){lastHeight = 2; break;}
 					if(mReading == 4){lastHeight = 4; break;}
