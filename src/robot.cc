@@ -9,7 +9,8 @@ class sensorReader {
 public:
 
 	frontSensorState cachedState;
-	bool touching;
+	bool touching1;
+	bool touching2;
 	int frontReadings;
 	bool backSensorOnLine;
 
@@ -30,9 +31,10 @@ public:
 	// stores reading in board2Reading, bit 1 converts to touching
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
-		touching = (board2Reading & 0b00000010) != 2;
-		cout << touching << endl;
-		cout << bitset<8>(board2Reading & 0b00100010) << endl;
+		touching1 = (board2Reading & 0b00000010) != 2;
+		touching2 = (board2Reading & 0b00000010) != 16;
+		//cout << touching << endl;
+		//cout << bitset<8>(board2Reading & 0b00100010) << endl;
 	}
 
 	
@@ -330,7 +332,7 @@ void robot::moveForwardUntilTouch(){
 		sensors.readBoard1();
 		sensors.readBoard2();
 		wheels.setStraightRotation(lineSpeed, 0);//getRotationDemand() * 10);
-	} while(!sensors.touching);
+	} while(!sensors.touching1);
 	wheels.brake();
 }
 
@@ -358,14 +360,14 @@ void robot::forkliftDown(int ms) {
 
 void robot::test() {
 	while(true) {
-		/*int reading0 = rlink.request (ADC0);
+		int reading0 = rlink.request (ADC0);
 		int reading1 = rlink.request (ADC1);
 		int reading2 = rlink.request (ADC2);
-		int reading3 = rlink.request (ADC3);*/
+		int reading3 = rlink.request (ADC3);
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
-		sensors.readBoard2();
-		//cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
+		//sensors.readBoard2();
+		cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
 		//signalLoadType(1);
 		//rlink.command(MOTOR_3_GO, 127);
 		//rlink.command(MOTOR_4_GO, 255);
