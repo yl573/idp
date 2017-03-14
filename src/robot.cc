@@ -34,7 +34,7 @@ public:
 		//cout << touching << endl;
 	}
 
-	// gets bits 2-7 from board2Reading
+	
 
 	int getforkliftReadingsADC(){
 		int height0 = rlink.request (ADC0);
@@ -58,7 +58,8 @@ public:
 		}
 	}
 
-
+// gets bits 2-7 from board2Reading
+/*
 	int getForkliftReadings() {	
 		int forkliftReading = board2Reading & 0b00111111;
 
@@ -77,6 +78,7 @@ public:
 		else
 			return -1;
 	}
+	*/
 	
 	// automatically turn on pallet type LEDs
 	color checkType() {
