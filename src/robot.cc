@@ -201,9 +201,7 @@ public:
 
 	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
 	void setHeight(int height){
-		sensors.readBoard2();
 		mReading = sensors.getforkliftReadingsADC();
-		
 		if (height == 1){
 			if (height > lastHeight){//we are at 0
 			#ifndef TEST
@@ -216,7 +214,6 @@ public:
 			if (height < lastHeight){
 			#ifndef TEST
 			do{
-				sensors.readBoard2();
 				rlink.command(MOTOR_3_GO, 255);
 			}while (getForkliftReadingADC() != 2);
 			delay(1000);
@@ -230,7 +227,6 @@ public:
 			if (height > lastHeight){
 			#ifndef TEST
 			do{
-				sensors.readBoard2();
 				rlink.command(MOTOR_3_GO, 127);
 			}while (getForkliftReadingADC() != 2);
 			delay(1000);
@@ -241,7 +237,6 @@ public:
 			if (height < lastHeight){
 			#ifndef TEST
 			do{
-				sensors.readBoard2();
 				rlink.command(MOTOR_3_GO, 255);
 			}while (getForkliftReadingADC() != 4);
 			delay(1000);
@@ -255,7 +250,6 @@ public:
 			if(mReading != height){
 				while (true){
 					rlink.command(MOTOR_3_GO, 127);
-					sensors.readBoard2();
 					mReading = sensors.getforkliftReadingsADC();
 					if(mReading == 0){lastHeight = 0; break;}
 					if(mReading == 2){lastHeight = 2; break;}
@@ -269,7 +263,6 @@ public:
 		else if (height > lastHeight){
 			#ifndef TEST
 			do{
-				sensors.readBoard2();
 				rlink.command(MOTOR_3_GO, 127);
 			}while (getForkliftReadingsADC() != height);
 			#endif
@@ -277,7 +270,6 @@ public:
 		else if (height < lastHeight){
 			#ifndef TEST
 			do{
-				readBoard2();
 				rlink.command(MOTOR_3_GO, 255);
 			}while (getForkliftReadingsADC() != height);
 			#endif
@@ -369,7 +361,8 @@ void robot::test() {
 		//signalLoadType(1);
 		//rlink.command(MOTOR_3_GO, 127);
 		//rlink.command(MOTOR_4_GO, 255);
-	}
+		forkliftDriver forklift(0);
+		forklift.setHeight(2);
 } 
 
 void robot::moveBackUntilFrontOnLine() {
