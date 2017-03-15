@@ -101,6 +101,10 @@ void planner::goUpRamp(location loadLocation) {
 	moveForwardMultipleTimes(4);
 }
 
+void goToBox1(){
+
+}
+
 void planner::getToPickUp1(location loadLocation){
 	if(loadLocation != pickUp1_conveyor && loadLocation != hole && loadLocation != origin)
 		throw invalid_argument( "invalid start location to go up the ramp" );
@@ -139,6 +143,11 @@ void planner::getToPickUp2(location loadLocation){
 	}
 }
 
+void planner::pickUpFromPickUp(){}
+
+void pickUpFromConveyor(){//forklift already at 0 after getToConveyorDrop
+	
+}
 
 /*
 void planner::stackPallet(int platform, int height) {
