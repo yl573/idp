@@ -7,9 +7,9 @@ enum color {red, green, black, white, nothing};
 
 class robot {
 public:
-
 	robot();
 	void moveForwardUntilJunction();
+	void flashNewLoadLed();
 	void moveForwardUntilTouch();
 	void moveBackUntilJunction();
 	void turn(int direction); 

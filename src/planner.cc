@@ -14,9 +14,11 @@ void planner::start() {
 	try {
 		//rbt.forkliftUp(8000);
 		//rbt.test();
-		
+		//rbt.flashNewLoadLed();
 		//rbt.forkliftDown(10000);
-		rbt.setForkliftHeight(0);
+		
+		
+		/*rbt.setForkliftHeight(0);
 		rbt.moveForwardUntilJunction();
 		rbt.moveForwardMs(1000);
 		rbt.setForkliftHeight(3);
@@ -29,21 +31,27 @@ void planner::start() {
 		rbt.setForkliftHeight(3);
 		rbt.moveForwardUntilJunction();
 		rbt.turn(LEFT);
-		rbt.setForkliftHeight(0);
+		rbt.setForkliftHeight(0);*/
+		
+		
 		//rbt.moveForwardUntilJunction();
 		//rbt.moveForwardUntilTouch();
 		//getToHole(pickUp2);
 		//goUpRamp(pickUp2);
-		/*rbt.moveForwardUntilJunction();
+		
+		rbt.setForkliftHeight(0);
+		rbt.moveForwardUntilJunction();
+		rbt.moveForwardUntilJunction();
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
+		rbt.setForkliftHeight(3);
 		rbt.moveBackUntilJunction();
-		rbt.forkliftDown(10000);
+		/*rbt.setForkliftHeight(0);
 		rbt.moveForwardUntilTouch();
 		rbt.forkliftUp(10000);
 		rbt.moveBackUntilJunction();
 		rbt.turn(LEFT);
-		//rbt.moveForwardUntilJunction();
+
 		rbt.moveForwardMs(2000);
 		rbt.forkliftDown(10000);
 		rbt.moveBackUntilJunction();

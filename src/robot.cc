@@ -87,33 +87,21 @@ public:
 	color checkType() {
 		int intensity = rlink.request (ADC4);
 		cout << "intensity" << intensity << endl;
-		if(intensity < 30 ) {
+		if(intensity < 15 ) {
 			return white;
 		}
-		else if(intensity >= 50 && intensity < 100) {
+		else if(intensity >= 45 && intensity < 100) {
 			return red;
 		}
-		else if(intensity >= 100 && intensity < 120) {
+		else if(intensity >= 100 && intensity < 140) {
 			return green;
 		}
-		else if(intensity >= 120) {
+		else if(intensity >= 140) {
 			return black;
 		}
 		else {
 			return nothing;
 		}
-	}
-
-	// flashes for 10 seconds, uses bit 0 from board 2
-	void flashNewLoadLed() {
-		rlink.command (WRITE_PORT_1, 0b00000001);
-		delay (2000);
-		rlink.command (WRITE_PORT_1, 0b00000000);
-		delay (2000);
-		rlink.command (WRITE_PORT_1, 0b00000001);
-		delay (2000);
-		rlink.command (WRITE_PORT_1, 0b00000000);
-		delay (4000);			
 	}
 
 	// get readings from the front sensors
@@ -278,6 +266,18 @@ robot::robot() {
 	cout << "creating robot" << endl;
 }
 
+// flashes for 10 seconds, uses bit 0 from board 2
+void robot::flashNewLoadLed() {
+	rlink.command (WRITE_PORT_1, 0b00000000);
+	delay (2000);
+	rlink.command (WRITE_PORT_1, 0b00000001);
+	delay (2000);
+	rlink.command (WRITE_PORT_1, 0b00000000);
+	delay (2000);
+	rlink.command (WRITE_PORT_1, 0b00000001);
+	delay (4000);			
+}
+
 void robot::setForkliftHeight(int height) {
 	cout << "set forklift height " << height << endl;
 	forklift.setHeight(height);
@@ -364,15 +364,15 @@ void robot::test() {
 	forklift.setHeight(1);
 	delay(100);*/
 	while(true) {
-		int reading0 = rlink.request (ADC0);
+		/*int reading0 = rlink.request (ADC0);
 		int reading1 = rlink.request (ADC1);
 		int reading2 = rlink.request (ADC2);
-		int reading3 = rlink.request (ADC3);
+		int reading3 = rlink.request (ADC3);*/
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
 		//sensors.readBoard2();
-		cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
-		//signalLoadType(1);
+		//cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
+		signalLoadType(1);
 		//rlink.command(MOTOR_3_GO, 127);
 		//rlink.command(MOTOR_4_GO, 255);
 	}	
@@ -550,7 +550,7 @@ void robot::signalLoadType(bool on) {
 			cout << "green" << endl;
 		}
 		else if (palletColor == black){
-			rlink.command (WRITE_PORT_0, 0b01110000);
+			rlink.command (WRITE_PORT_0, 0b10000000);
 			cout << "black" << endl;
 		}
 		else if (palletColor == white){
