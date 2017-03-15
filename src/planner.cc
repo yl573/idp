@@ -12,11 +12,24 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		//rbt.forkliftDown(8000);
-		rbt.test();
+		//rbt.forkliftUp(8000);
+		//rbt.test();
+		
 		//rbt.forkliftDown(10000);
+		rbt.setForkliftHeight(0);
 		rbt.moveForwardUntilJunction();
+		rbt.moveForwardMs(1000);
+		rbt.setForkliftHeight(3);
+		rbt.moveBackUntilJunction();
 		rbt.turn(RIGHT);
+		rbt.align();
+		rbt.moveForwardUntilTouch();
+		rbt.setForkliftHeight(0);
+		rbt.moveBackUntilFrontOnLine();
+		rbt.setForkliftHeight(3);
+		rbt.moveForwardUntilJunction();
+		rbt.turn(LEFT);
+		rbt.setForkliftHeight(0);
 		//rbt.moveForwardUntilJunction();
 		//rbt.moveForwardUntilTouch();
 		//getToHole(pickUp2);
@@ -40,7 +53,7 @@ void planner::start() {
 		rbt.moveBackUntilJunction();
 		rbt.turn(LEFT);
 		//rbt.moveForwardUntilJunction();
-		rbt.moveForwardMs(2000);
+		
 		rbt.forkliftDown(10000);
 		rbt.moveBackUntilJunction();
 

@@ -9,7 +9,8 @@ class sensorReader {
 public:
 
 	frontSensorState cachedState;
-	bool touching;
+	bool touching1;
+	bool touching2;
 	int frontReadings;
 	bool backSensorOnLine;
 
@@ -30,28 +31,29 @@ public:
 	// stores reading in board2Reading, bit 1 converts to touching
 	void readBoard2() {
 		board2Reading = rlink.request (READ_PORT_1);
-		touching = (board2Reading & 0b00000010) != 2;
-		cout << touching << endl;
-		cout << bitset<8>(board2Reading & 0b00100010) << endl;
+		touching1 = (board2Reading & 0b00000010) != 2;
+		touching2 = (board2Reading & 0b00000010) != 16;
+		//cout << touching << endl;
+		//cout << bitset<8>(board2Reading & 0b00100010) << endl;
 	}
 
 	
 
-	int getforkliftReadingsADC(){
+	int getForkliftReadingsADC(){
 		int height0 = rlink.request (ADC0);
 		int height2 = rlink.request (ADC1);
 		int height4 = rlink.request (ADC2);
 		int height5 = rlink.request (ADC3);
-		if(height0 < 10 ) { //find the value from tests
+		if(height0 < 5 ) { //find the value from tests
 			return 0;
 		}
-		else if(height2 < 10 ) { 
+		else if(height2 < 5 ) { 
 			return 2;
 		}
-		else if(height4 < 10 ) { 
+		else if(height4 < 5 ) { 
 			return 4;
 		}
-		else if(height5 < 10 ) { 
+		else if(height5 < 5 ) { 
 			return 5;
 		}
 		else{
@@ -194,98 +196,93 @@ private:
 
 class forkliftDriver {
 public:
-	int lastHeight;//reference
-	int currentHeight; //could read all the sensors to know what's the current height but it's wasteful
+	const int down = 127;
+	const int up = 255;
+	int lastHeight = 1;//reference, 0 at the beginning
 	int mReading;
-	forkliftDriver(int h){ lastHeight = h;}
 
-	//set the new height as last height inside setHight(int) or outide?    MOTOR_3 for forklift
 	void setHeight(int height){
-		mReading = sensors.getforkliftReadingsADC();
+		cout<<" height " << lastHeight;
+		mReading = sensors.getForkliftReadingsADC();
+		//stops at the top and bottom
+		if (sensors.getForkliftReadingsADC() == 0 && rlink.request(MOTOR_3) == down)
+			rlink.command(MOTOR_3_GO, 0);
+		if (sensors.getForkliftReadingsADC() == 5 && rlink.request(MOTOR_3) == up)
+			rlink.command(MOTOR_3_GO, 0);
+			
 		if (height == 1){
 			if (height > lastHeight){//we are at 0
-			#ifndef TEST
-			rlink.command(MOTOR_3_GO, 127);
-			delay(1000);
-			rlink.command (RAMP_TIME, 0);
+			rlink.command(MOTOR_3_GO, up);
+			delay(2500);
 			rlink.command(MOTOR_3_GO, 0);
-			#endif
 			}
 			if (height < lastHeight){
-			#ifndef TEST
 			do{
-				rlink.command(MOTOR_3_GO, 255);
-			}while (getForkliftReadingADC() != 2);
-			delay(1000);
-			rlink.command (RAMP_TIME, 0);
+				rlink.command(MOTOR_3_GO, down);
+			}while (sensors.getForkliftReadingsADC() != 2);
+			delay(2500);
 			rlink.command(MOTOR_3_GO, 0);
-			#endif
 			}
 		}
 
 		else if (height == 3){
 			if (height > lastHeight){
-			#ifndef TEST
 			do{
-				rlink.command(MOTOR_3_GO, 127);
-			}while (getForkliftReadingADC() != 2);
-			delay(1000);
-			rlink.command (RAMP_TIME, 0);
+				rlink.command(MOTOR_3_GO, up);
+			}while (sensors.getForkliftReadingsADC() != 2);
+			delay(2500);
 			rlink.command(MOTOR_3_GO, 0);
-			#endif
 			}
 			if (height < lastHeight){
-			#ifndef TEST
 			do{
-				rlink.command(MOTOR_3_GO, 255);
-			}while (getForkliftReadingADC() != 4);
-			delay(1000);
-			rlink.command (RAMP_TIME, 0);
+				rlink.command(MOTOR_3_GO, down);
+			}while (sensors.getForkliftReadingsADC() != 4);
+			delay(2500);
 			rlink.command(MOTOR_3_GO, 0);
-			#endif
 			}
 		}
 
-		else if (height == lastHeight){
+		/*else if (height == lastHeight){
 			if(mReading != height){
 				while (true){
-					rlink.command(MOTOR_3_GO, 127);
-					mReading = sensors.getforkliftReadingsADC();
+					rlink.command(MOTOR_3_GO, 255);
+					mReading = sensors.getForkliftReadingsADC();
 					if(mReading == 0){lastHeight = 0; break;}
 					if(mReading == 2){lastHeight = 2; break;}
 					if(mReading == 4){lastHeight = 4; break;}
 					if(mReading == 5){lastHeight = 5; break;}
 				}
-				rlink.command (RAMP_TIME, 0);
 				rlink.command(MOTOR_3_GO, 0);
 			}
-		}
+		}*/
 		else if (height > lastHeight){
-			#ifndef TEST
 			do{
-				rlink.command(MOTOR_3_GO, 127);
-			}while (getForkliftReadingsADC() != height);
-			#endif
+				rlink.command(MOTOR_3_GO, up);
+			}while (sensors.getForkliftReadingsADC() != height);
+			delay(150);
 		}
 		else if (height < lastHeight){
-			#ifndef TEST
 			do{
-				rlink.command(MOTOR_3_GO, 255);
-			}while (getForkliftReadingsADC() != height);
-			#endif
+				rlink.command(MOTOR_3_GO, down);
+			}while (sensors.getForkliftReadingsADC() != height);
+			delay(150);
 		}
-		#ifndef TEST
-		rlink.command (RAMP_TIME, 0);//quick stopping, have to stop while the sensor still reads 1
 		rlink.command(MOTOR_3_GO, 0);
-		#endif
 		lastHeight = height;
+		cout << lastHeight<<endl;
 	}
-} forklift(STARTING_POSITION); //startingPosition is global; indicates the starting position of the forklift
+} forklift;
 
 
 robot::robot() {
 	cout << "creating robot" << endl;
 }
+
+void robot::setForkliftHeight(int height) {
+	cout << "set forklift height " << height << endl;
+	forklift.setHeight(height);
+}
+
 
 void robot::moveForwardUntilJunction() {
 	cout << "move forward until junction" << endl;
@@ -296,12 +293,13 @@ void robot::moveForwardUntilJunction() {
 	while(true) {
 		sensors.readBoard1();
 		frontSensorState reading = sensors.getFrontSensorReading();
-		if(reading == WWW) {
+		/*if(reading == WWW) {
 			backLine = false;
 			cout << "WWW" << endl;
 			break;
 		}
-		else if(sensors.backSensorOnLine) {
+		else*/ 
+		if(sensors.backSensorOnLine) {
 			backLine = true;
 			cout << "back on line" << endl;
 			break;
@@ -310,8 +308,9 @@ void robot::moveForwardUntilJunction() {
 	} 
 	if(!backLine) {
 		wheels.setStraightRotation(lineSpeed, 0);
-		delay(350);
+		delay(320);
 	}
+	delay(50);
 	wheels.brake();
 }
 
@@ -322,7 +321,7 @@ void robot::moveForwardUntilTouch(){
 		sensors.readBoard1();
 		sensors.readBoard2();
 		wheels.setStraightRotation(lineSpeed, 0);//getRotationDemand() * 10);
-	} while(!sensors.touching);
+	} while(!sensors.touching1);
 	wheels.brake();
 }
 
@@ -333,6 +332,8 @@ void robot::moveBackUntilJunction() {
 	do {
 		sensors.readBoard1();
 	} while(!sensors.backSensorOnLine);
+	wheels.setStraightRotation(-lineSpeed, 0);
+	delay(200);
 	wheels.brake();
 }
 
@@ -349,20 +350,32 @@ void robot::forkliftDown(int ms) {
 }
 
 void robot::test() {
+	cout<<" something ";
+	/*forklift.setHeight(4);
+	delay(100);
+	forklift.setHeight(2);
+	delay(100);
+	forklift.setHeight(5);
+	delay(100);
+	forklift.setHeight(0);
+	delay(100);
+	forklift.setHeight(3);
+	delay(100);
+	forklift.setHeight(1);
+	delay(100);*/
 	while(true) {
-		/*int reading0 = rlink.request (ADC0);
+		int reading0 = rlink.request (ADC0);
 		int reading1 = rlink.request (ADC1);
 		int reading2 = rlink.request (ADC2);
-		int reading3 = rlink.request (ADC3);*/
+		int reading3 = rlink.request (ADC3);
 		//if(reading != prev) {
 		//reading = reading & 0b00000010;
-		sensors.readBoard2();
-		//cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
+		//sensors.readBoard2();
+		cout << "reading: " << reading0 << " " << reading1 << " " << reading2 << " " << reading3 << "\n";
 		//signalLoadType(1);
 		//rlink.command(MOTOR_3_GO, 127);
 		//rlink.command(MOTOR_4_GO, 255);
-		forkliftDriver forklift(0);
-		forklift.setHeight(2);
+	}	
 } 
 
 void robot::moveBackUntilFrontOnLine() {
@@ -371,6 +384,31 @@ void robot::moveBackUntilFrontOnLine() {
 	wheels.setStraightRotation(lineSpeed, 0);
 	delay(500);
 	wheels.brake();
+}
+
+void robot::align() {
+	cout << "aligning" << endl;
+	while(true) {
+		sensors.readBoard1();
+		frontSensorState reading = sensors.getFrontSensorReading();
+		//int reading = sensors.frontReadings;
+		//cout << bitset<8>(reading) << endl;
+		if(reading == WBB) {
+			cout << "WBB" << endl;
+			wheels.setStraightRotation(0, 60);
+		}
+		else if(reading == BBW) {
+			cout << "BBW" << endl;
+			wheels.setStraightRotation(0, -60);
+		}
+		else if(reading == BBB) {
+			recovery();
+		}
+		else {
+			cout << "aligned break" << endl;
+			break;
+		}
+	}
 }
 
 int robot::getRotationDemand() { 
@@ -427,7 +465,7 @@ void robot::turn(int direction) {
 	do {
 		sensors.readBoard1();
 	} while(!sensors.backSensorOnLine);
-	//delay(80);
+	//delay(40);
 	wheels.brake();
 	//watch.read() < 1600); //|| 
 }

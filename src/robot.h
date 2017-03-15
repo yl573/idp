@@ -16,10 +16,12 @@ public:
 	void moveBackUntilFrontOnLine();
 	void recovery();
 	void test();
+	void align();
 	void signalLoadType(bool on);
 	void forkliftUp(int ms);
 	void forkliftDown(int ms);
 	void moveForwardMs(int ms);
+	void setForkliftHeight(int height);
 private:
 	int getOffset(frontSensorState readings);
 	void waitTimeoutOrReachedLine(int timeout);
