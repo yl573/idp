@@ -14,9 +14,12 @@ void planner::start() {
 	try {
 		//rbt.forkliftUp(8000);
 		//rbt.test();
-		
+		getToPickUp1(origin);
+		pickUpFromPickUp();
+		getToHole(pickUp1_conveyor);
+		putInHole();
 		//rbt.forkliftDown(10000);
-		rbt.setForkliftHeight(0);
+		/*rbt.setForkliftHeight(0);
 		rbt.moveForwardUntilJunction();
 		rbt.moveForwardMs(1000);
 		rbt.setForkliftHeight(3);
@@ -29,7 +32,7 @@ void planner::start() {
 		rbt.setForkliftHeight(3);
 		rbt.moveForwardUntilJunction();
 		rbt.turn(LEFT);
-		rbt.setForkliftHeight(0);
+		rbt.setForkliftHeight(0);*/
 		//rbt.moveForwardUntilJunction();
 		//rbt.moveForwardUntilTouch();
 		//getToHole(pickUp2);
@@ -184,6 +187,7 @@ void planner::getToPickUp1(location loadLocation){
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
+	loadLocation = pickUp1_conveyor;
 }
 
 void planner::getToPickUp2(location loadLocation){
@@ -199,6 +203,7 @@ void planner::getToPickUp2(location loadLocation){
 	else if(loadLocation == hole){
 		rbt.moveForwardUntilJunction();
 	}
+	loadLocation = pickUp2;
 }
 
 void pickUpFromPickUp(){
@@ -216,6 +221,24 @@ void pickUpFromConveyor(){
 
 void putOnConveyor(){
 	forklift.setHeight(0);
+}
+
+void putInHole(){
+	forklift.setHeight(4);
+}
+
+void putOnBox1(){
+	forklift.setHeight(0);
+	palletOnBox1 = true;
+}
+
+void putOnBox1(){
+	forklift.setHeight(0);
+	palletOnBox2 = true;
+}
+
+void stackOnPallet(){
+	forklift.setHeight(2);
 }
 
 /*

@@ -7,6 +7,8 @@ enum location {origin, pickUp1_conveyor, pickUp2, hole, box1, box2, conveyorPick
 class planner {
 
 public:
+	bool palletOnBox1 = false;
+	bool palletOnBox2 = false;
 	location currentLocation;
 	color currentColor;
 	queue<color> palletColors;
@@ -27,9 +29,10 @@ private:
 	void moveForwardMultipleTimes(int n);
 	void pickUpFromPickUp();// done/
 	void pickUpFromConveyor();// done/
-	void putOnConveyor();//
-	void putInHole();//
-	void putOnBox();//
-
+	void putOnConveyor();// done/
+	void putInHole();// done /
+	void putOnBox1();// done/
+	void putOnBox2();//
+	void stackOnPallet();//
 
 };
