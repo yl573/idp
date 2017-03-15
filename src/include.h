@@ -18,6 +18,9 @@
 
 using namespace std;
 
+
+enum color {red, green, black, white, nothing};
+
 extern robot_link rlink;
 extern stopwatch watch;
 extern ofstream myfile;
