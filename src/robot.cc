@@ -538,7 +538,7 @@ void robot::waitTimeoutOrReachedLine(int timeout) {
 	}
 }
 
-void robot::signalLoadType(bool on) {
+color robot::signalLoadType(bool on) {
 	color palletColor = sensors.checkType();
 	if (on == true){
 		if (palletColor == red){
@@ -564,6 +564,7 @@ void robot::signalLoadType(bool on) {
 	else {
 		rlink.command (WRITE_PORT_0, 0b11110000);
 	}
+	return palletColor;
 }
 
 

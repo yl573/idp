@@ -17,7 +17,7 @@ public:
 	void recovery();
 	void test();
 	void align();
-	void signalLoadType(bool on);
+	color signalLoadType(bool on);
 	void forkliftUp(int ms);
 	void forkliftDown(int ms);
 	void moveForwardMs(int ms);
