@@ -230,7 +230,11 @@ void pickUpFromPickUp(){
 void pickUpFromConveyor(){
 	currentColor = palletColors.front();
 	myqueue.pop(); //check if correct
-	forklift.setHeight(1);
+	if (palletOnBox1 == 0){
+		forklift.setHeight(1);
+	}
+	else if (palletOnBox1 == 0){
+		forklift
 }
 
 void putOnConveyor(){
