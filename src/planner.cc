@@ -12,77 +12,14 @@ planner::planner() {
 void planner::start() {
 	cout << "mission start" << endl;
 	try {
-		//rbt.forkliftUp(8000);
-		//rbt.test();
-
-		//rbt.flashNewLoadLed();
-		//rbt.forkliftDown(10000);
-		
-		
-
-		getToPickUp1(origin);
-		pickUpFromPickUp();
-		getToHole(pickUp1_conveyor);
-		putInHole();
-		//rbt.forkliftDown(10000);
-
-		/*rbt.setForkliftHeight(0);
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardMs(1000);
-		rbt.setForkliftHeight(3);
-		rbt.moveBackUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.align();
-		rbt.moveForwardUntilTouch();
-		rbt.setForkliftHeight(0);
-		rbt.moveBackUntilFrontOnLine();
-		rbt.setForkliftHeight(3);
-		rbt.moveForwardUntilJunction();
-		rbt.turn(LEFT);
-		rbt.setForkliftHeight(0);*/
-
-		
-
-		//rbt.moveForwardUntilJunction();
-		//rbt.moveForwardUntilTouch();
-		//getToHole(pickUp2);
+		//getToPickUp1(origin);
 		//goUpRamp(pickUp2);
+		//getToConveyorDrop(pickUp2);
+		goToConveyorPickUp(conveyorPickUpJunction);
+		pickUpFromConveyor();
 		
-		rbt.setForkliftHeight(0);
-		rbt.moveForwardUntilJunction();
-		rbt.moveForwardUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.moveForwardUntilTouch();
-		rbt.setForkliftHeight(3);
-		rbt.moveBackUntilJunction();
-		/*rbt.setForkliftHeight(0);
-		rbt.moveForwardUntilTouch();
-		rbt.forkliftUp(10000);
-		rbt.moveBackUntilJunction();
-		rbt.turn(LEFT);
-
-		rbt.moveForwardMs(2000);
-		rbt.forkliftDown(10000);
-		rbt.moveBackUntilJunction();
-		rbt.turn(RIGHT);
-		rbt.moveForwardUntilTouch();
-		rbt.forkliftUp(10000);
-		rbt.moveBackUntilJunction();
-		rbt.turn(LEFT);
-		//rbt.moveForwardUntilJunction();
-		
-		rbt.forkliftDown(10000);
-		rbt.moveBackUntilJunction();
-
-		*/
-		/*while(true) {
-			rbt.signalLoadType(true);
-		}*/
-		//rbt.turn(RIGHT);
-		//rbt.moveForwardUntilTouch();
 	} catch(runtime_error& error) {
-		//cout << "ERROR: " << error.what() << endl;
-		//rbt.recovery();
+
 	}
 }
 
@@ -113,7 +50,7 @@ void planner::getToHole(location loadLocation) {
 		rbt.moveForwardUntilJunction();
 	}
 	rbt.turn(RIGHT);
-	forklift.setHeight(5);
+	rbt.setForkliftHeight(5);
 	rbt.moveForwardUntilJunction();
 	rbt.moveForwardUntilTouch();
 	currentLocation = hole;
@@ -141,7 +78,7 @@ void planner::goUpRamp(location loadLocation) {
 	currentLocation = conveyorPickUpJunction;
 }
 
-void goToBox1(){
+void planner::goToBox1(){
 	rbt.moveBackUntilJunction();
 	rbt.turn(RIGHT);
 	rbt.align();//if needed
@@ -149,7 +86,7 @@ void goToBox1(){
 	currentLocation = box1;
 }
 
-void goToBox1(){
+void planner::goToBox2(){
 	rbt.moveBackUntilJunction();
 	rbt.turn(LEFT);
 	rbt.align();//if needed
@@ -157,32 +94,31 @@ void goToBox1(){
 	currentLocation = box2;
 }
 
-void goToConveyorPickUp(location loadLocation){
+void planner::goToConveyorPickUp(location loadLocation){
 	if (loadLocation != box1 && loadLocation != box2 && loadLocation != conveyorPickUpJunction){
 		throw invalid_argument( "invalid start location to go up the ramp" );
 	}
-	forklift.setHeight(0);
+	rbt.setForkliftHeight(0);
 	if (loadLocation == conveyorPickUpJunction){
-		rbt.moveForwardUntilTouch();
+		
 	}
 	if (loadLocation == box1){
 		rbt.moveBackUntilJunction(); //check if moves enough to not touch the pallet
 		rbt.turn(RIGHT);
-		rbt.moveForwardUntilTouch();
 	}
 	if (loadLocation == box2){
 		rbt.moveBackUntilJunction();
 		rbt.turn(LEFT);
-		rbt.moveForwardUntilTouch();
 	}
+	rbt.moveForwardMs(1000);
 }
 
 void planner::getToPickUp1(location loadLocation){
 	if(loadLocation != pickUp1_conveyor && loadLocation != hole && loadLocation != origin)
-		throw invalid_argument( "invalid start location to go up the ramp" );
+		throw invalid_argument( "invalid start location to go to pick up 1" );
 	if(loadLocation == pickUp1_conveyor){
 		rbt.moveBackUntilJunction();
-		forklift.setHeight(0);
+		rbt.setForkliftHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
@@ -190,14 +126,13 @@ void planner::getToPickUp1(location loadLocation){
 		rbt.moveBackUntilJunction();
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilJunction();
-		forklift.setHeight(0);
+		rbt.setForkliftHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
 	else if(loadLocation == origin){
-		rbt.turn(RIGHT); //check how we start
 		moveForwardMultipleTimes(3);
-		forklift.setHeight(0);
+		rbt.setForkliftHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
@@ -206,9 +141,10 @@ void planner::getToPickUp1(location loadLocation){
 
 void planner::getToPickUp2(location loadLocation){
 	if(loadLocation != pickUp1_conveyor && loadLocation != hole)
-		throw invalid_argument( "invalid start location to go up the ramp" );
+		throw invalid_argument( "invalid start location to go to pick up 2" );
 	rbt.moveBackUntilJunction();
 	rbt.turn(LEFT);
+	delay(200);
 	rbt.turn(LEFT);
 	rbt.moveForwardUntilJunction();
 	if(loadLocation == pickUp1_conveyor){
@@ -220,39 +156,39 @@ void planner::getToPickUp2(location loadLocation){
 	loadLocation = pickUp2;
 }
 
-void pickUpFromPickUp(){
+void planner::pickUpFromPickUp(){
 	currentColor = rbt.signalLoadType(true);
-	if (currentColor == white || ccurrentColor == green || currentColor == red){
-		palletColors.push(checkColor);
+	if (currentColor == white || currentColor == green || currentColor == red){
+		palletColors.push(currentColor);
 	}
-	forklift.setHeight(1);
+	rbt.setForkliftHeight(1);
 }
-void pickUpFromConveyor(){
+void planner::pickUpFromConveyor(){
 	currentColor = palletColors.front();
-	myqueue.pop(); //check if correct
-	forklift.setHeight(1);
+	palletColors.pop(); //check if correct
+	rbt.setForkliftHeight(1);
 }
 
-void putOnConveyor(){
-	forklift.setHeight(0);
+void planner::putOnConveyor(){
+	rbt.setForkliftHeight(0);
 }
 
-void putInHole(){
-	forklift.setHeight(4);
+void planner::putInHole(){
+	rbt.setForkliftHeight(4);
 }
 
-void putOnBox1(){
-	forklift.setHeight(0);
+void planner::putOnBox1(){
+	rbt.setForkliftHeight(0);
 	palletOnBox1 = true;
 }
 
-void putOnBox1(){
-	forklift.setHeight(0);
+void planner::putOnBox2(){
+	rbt.setForkliftHeight(0);
 	palletOnBox2 = true;
 }
 
-void stackOnPallet(){
-	forklift.setHeight(2);
+void planner::stackOnPallet(){
+	rbt.setForkliftHeight(2);
 }
 
 /*
