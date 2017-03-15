@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include <stdexcept>
 
 #include <robot_instr.h>

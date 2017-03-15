@@ -84,6 +84,7 @@ void planner::getToConveyorDrop(location loadLocation) {
 		rbt.moveForwardUntilJunction();
 	}
 	rbt.moveForwardUntilTouch();
+	currentLocation = pickUp1_conveyor;
 }
 
 void planner::getToHole(location loadLocation) {
@@ -95,27 +96,68 @@ void planner::getToHole(location loadLocation) {
 		rbt.moveForwardUntilJunction();
 	}
 	rbt.turn(RIGHT);
+	forklift.setHeight(5);
 	rbt.moveForwardUntilJunction();
 	rbt.moveForwardUntilTouch();
+	currentLocation = hole;
 }
 
 void planner::goUpRamp(location loadLocation) {
 	if(loadLocation != pickUp2 && loadLocation != hole)
 		throw invalid_argument( "invalid start location to go up the ramp" );
-	//rbt.turn(LEFT);
-	//rbt.turn(LEFT);
-	rbt.moveForwardUntilJunction();
-	if(loadLocation == hole) 
+	if(loadLocation == hole){
+		rbt.moveBackUntilJunction(); // check if gets the first line
 		rbt.turn(RIGHT);
+		rbt.turn(RIGHT);
+		moveForwardMultipleTimes(2);
+		rbt.turn(RIGHT);
+	}
+	if(loadLocation == pickUp2){
+		rbt.moveBackUntilJunction(); // check if gets the first line
+		rbt.turn(RIGHT);
+	}
 	moveForwardMultipleTimes(2);
 	rbt.turn(RIGHT);
 	moveForwardMultipleTimes(2);
 	rbt.turn(RIGHT);
 	moveForwardMultipleTimes(4);
+	currentLocation = conveyorPickUpJunction;
 }
 
 void goToBox1(){
+	rbt.moveBackUntilJunction();
+	rbt.turn(RIGHT);
+	rbt.align();//if needed
+	rbt.moveForwardUntilTouch();
+	currentLocation = box1;
+}
 
+void goToBox1(){
+	rbt.moveBackUntilJunction();
+	rbt.turn(LEFT);
+	rbt.align();//if needed
+	rbt.moveForwardUntilTouch();
+	currentLocation = box2;
+}
+
+void goToConveyorPickUp(location loadLocation){
+	if (loadLocation != box1 && loadLocation != box2 && loadLocation != conveyorPickUpJunction){
+		throw invalid_argument( "invalid start location to go up the ramp" );
+	}
+	forklift.setHeight(0);
+	if (loadLocation == conveyorPickUpJunction){
+		rbt.moveForwardUntilTouch();
+	}
+	if (loadLocation == box1){
+		rbt.moveBackUntilJunction(); //check if moves enough to not touch the pallet
+		rbt.turn(RIGHT);
+		rbt.moveForwardUntilTouch();
+	}
+	if (loadLocation == box2){
+		rbt.moveBackUntilJunction();
+		rbt.turn(LEFT);
+		rbt.moveForwardUntilTouch();
+	}
 }
 
 void planner::getToPickUp1(location loadLocation){
@@ -123,6 +165,7 @@ void planner::getToPickUp1(location loadLocation){
 		throw invalid_argument( "invalid start location to go up the ramp" );
 	if(loadLocation == pickUp1_conveyor){
 		rbt.moveBackUntilJunction();
+		forklift.setHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
@@ -130,12 +173,14 @@ void planner::getToPickUp1(location loadLocation){
 		rbt.moveBackUntilJunction();
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilJunction();
+		forklift.setHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
 	else if(loadLocation == origin){
 		rbt.turn(RIGHT); //check how we start
 		moveForwardMultipleTimes(3);
+		forklift.setHeight(0);
 		rbt.turn(RIGHT);
 		rbt.moveForwardUntilTouch();
 	}
@@ -156,10 +201,21 @@ void planner::getToPickUp2(location loadLocation){
 	}
 }
 
-void planner::pickUpFromPickUp(){}
+void pickUpFromPickUp(){
+	currentColor = rbt.signalLoadType(true);
+	if (currentColor == white || ccurrentColor == green || currentColor == red){
+		palletColors.push(checkColor);
+	}
+	forklift.setHeight(1);
+}
+void pickUpFromConveyor(){
+	currentColor = palletColors.front();
+	myqueue.pop(); //check if correct
+	forklift.setHeight(1);
+}
 
-void pickUpFromConveyor(){//forklift already at 0 after getToConveyorDrop
-	
+void putOnConveyor(){
+	forklift.setHeight(0);
 }
 
 /*
