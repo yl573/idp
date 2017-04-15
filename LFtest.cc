@@ -1,8 +1,7 @@
 #include <iostream>
 using namespace std;
 #include <robot_instr.h>
-#include <robot_link.h>
-#include <bitset>
+
 
 
 #define ROBOT_NUM 11   // The id number (see below)
