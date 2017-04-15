@@ -7,3 +7,4 @@ project.geany
 main.dSYM/
 .vscode/
 *.o
+a.b
